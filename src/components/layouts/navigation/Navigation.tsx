@@ -15,7 +15,7 @@ export default function Navigation() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <NavLink href="/home" label='Home' />
+                        <NavLink href="/" label='Home' />
                         <NavLink href="/food" label='Food' />
                         <NavLink href="/recipes" label='Recipes' />
                         <NavLink href='/' label='Login / Sign Up' />

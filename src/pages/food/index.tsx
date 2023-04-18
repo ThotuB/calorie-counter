@@ -1,42 +1,41 @@
-import { type NextPage } from "next";
 import Head from "next/head";
 
 import Layout from "@layouts/navigation/Layout";
-import Daily from "@components/daily/Daily";
+import type { NutrientDto } from "types/food";
+import { trpc } from "@utils/trpc";
 import { useEffect, useState } from "react";
+import axios from "axios";
+import FoodCard from "@components/food/FoodCard";
+import FoodCardPlaceholder from "@components/food/FoodCardPlaceHolder";
 
-const FoodPage: NextPage = () => {
+const FoodPage = () => {
     const [foods, setFoods] = useState([]);
-    const [pages, setPages] = useState(0);
-    const [page, setPage] = useState(1);
-    const [total, setTotal] = useState(0);
+    // const [pages, setPages] = useState(0);
+    // const [page, setPage] = useState(1);
+    // const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const url = `https://api.nal.usda.gov/fdc/v1/search`
-        const query = {
-            params: {
-                api_key: apiKey,
-                generalSearchInput: search,
-                dataType: 'Branded',
-                pageNumber: page,
-                pageSize: 10,
-            }
-        }
+    // const foodData = trpc.food.search.useQuery({
+    //     api_key: 'g8hkV8fS6A17dTaS0DEk464LisJCu8AdN2gKIU2C',
+    //     query: 'cheese'
+    // })
 
-        setLoading(true);
-        axios.get(url, query)
-            .then(res => {
-                setFoods(res.data.foods);
-                setPages(res.data.totalPages);
-                setTotal(res.data.totalHits);
+    useEffect(() => {
+        axios.get('https://api.nal.usda.gov/fdc/v1/foods/search', {
+            params: {
+                api_key: 'g8hkV8fS6A17dTaS0DEk464LisJCu8AdN2gKIU2C',
+                query: 'burger',
+                dataType: 'Branded',
+                pageSize: 10
+            }
+        })
+            .then((response) => {
+                setFoods(response.data.foods);
                 setLoading(false);
             })
-            .catch(err => {
-                console.log(err);
-            })
-    }, [search, page]);
-    
+
+    }, [])
+
     return (
         <>
             <Head>
@@ -45,13 +44,48 @@ const FoodPage: NextPage = () => {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <Layout>
-                {loading ?
-                    <Loading /> :
-                    <FoodList items={foods} />
-                }
+                <div className='flex flex-col gap-4 mb-4 w-full'>
+                    {loading ?
+                        Array.from({ length: 10 }, (_, key) => (
+                            <FoodCardPlaceholder key={key} />
+                        )) :
+                        foods.map((food) => {
+                            const { fdcId, brandName, brandOwner, description, foodNutrients, servingSize, servingSizeUnit } = food;
+                            const rating = 3;
+
+                            const macros = {
+                                calories: findNutrientValue(foodNutrients, 1008),
+                                protein: findNutrientValue(foodNutrients, 1003),
+                                fat: findNutrientValue(foodNutrients, 1004),
+                                carbs: findNutrientValue(foodNutrients, 1005)
+                            };
+                            const calories = Math.round(macros.calories / 100 * servingSize);
+                            const serving = Math.round(servingSize);
+
+                            return (
+                                <FoodCard
+                                    key={fdcId}
+                                    id={fdcId}
+                                    description={description}
+                                    macros={macros}
+                                    calories={calories}
+                                    company={brandOwner}
+                                    name={brandName}
+                                    rating={rating}
+                                    servingSize={serving}
+                                    servingUnit={servingSizeUnit}
+                                />
+                            );
+                        })}
+                </div>
             </Layout>
         </>
     );
 };
 
 export default FoodPage;
+
+function findNutrientValue(nutrients: NutrientDto[], id: number) {
+    const nutrient = nutrients.find(nutrient => nutrient.nutrientId === id)
+    return nutrient ? nutrient.value : 0;
+}

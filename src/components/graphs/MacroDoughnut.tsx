@@ -40,6 +40,6 @@ const MacroDoughnut = ({ carbs, fat, protein }: MacroProps) => {
 
 	ChartJS.register(ArcElement);
 
-	return <Doughnut className="w-36" data={data} options={options}/>;
+	return <Doughnut className="w-36" data={data} options={options} />;
 }
 export default MacroDoughnut;
