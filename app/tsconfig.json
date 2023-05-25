@@ -1,0 +1,29 @@
+{
+    "extends": "expo/tsconfig.base",
+    "compilerOptions": {
+        "allowJs": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "jsx": "preserve",
+        "incremental": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true,
+        "baseUrl": ".",
+        "paths": {
+            "@src/*": [
+                "./src/*"
+            ],
+            "@components/*": [
+                "./src/components/*"
+            ],
+            "@icons/*": [
+                "./src/icons/*"
+            ],
+        }
+    }
+}
