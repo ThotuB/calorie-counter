@@ -1,4 +1,5 @@
 export interface Food {
+    id: number;
     name: string;
     brand: string;
     calories: number;
@@ -12,11 +13,11 @@ export interface Food {
 }
 
 export interface Nutrients {
-    carbs?: number;
+    carbs: number;
     fiber?: number;
     sugar?: number;
-    protein?: number;
-    fat?: number;
+    protein: number;
+    fat: number;
     saturatedFat?: number;
     unsaturatedFat?: number;
 };
@@ -34,6 +35,8 @@ export interface Vitamins {
     B12?: number;
     C?: number;
     D?: number;
+    E?: number;
+    K?: number;
 };
 
 export interface Minerals {
@@ -62,6 +65,7 @@ export interface Aminos {
     glutamate?: number;
     glycine?: number;
     histidine?: number;
+    isoleucine?: number;
     leucine?: number;
     lysine?: number;
     methionine?: number;

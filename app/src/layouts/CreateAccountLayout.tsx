@@ -1,44 +1,48 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, View, Text, Pressable } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import { ChevronLeftIcon } from 'src/icons/outline';
 
 const CreateAccountLayout: React.FC<{
 	children: React.ReactNode;
 	question: string;
 	progress: number;
-	href: string;
-	isPressable?: boolean;
-}> = ({ children, question, progress, href, isPressable = true }) => {
+}> = ({ children, question, progress }) => {
+	const router = useRouter();
 	const totalSteps = 5;
 
-	const onPress = () => {
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-	};
-
 	return (
-		<View className='bg-gray-900'>
+		<View className='bg-zinc-900'>
 			<StatusBar style='light' />
 			<SafeAreaView className='h-full w-full '>
-				<View className='flex flex-1 flex-col items-center px-4'>
-					<View className='flex flex-row items-center justify-between py-4'>
-						<View className='w-24' />
-						<View className='flex flex-row gap-2'>
+				<View className='flex-1 flex-col items-center justify-between px-4'>
+					<View className='flex-row items-center justify-between py-4'>
+						<Pressable
+							className='mr-8'
+							onPress={() => router.back()}
+						>
+							<ChevronLeftIcon
+								svgClassName='h-5 w-5 text-white'
+								strokeWidth={3}
+							/>
+						</Pressable>
+						<View className='flex-1 flex-row'>
 							{Array.from({ length: progress }).map((_, i) => (
 								<View
 									key={i}
-									className=' h-1 flex-1 rounded-full bg-purple-400'
+									className=' mx-1 h-1 flex-1 rounded-full bg-purple-400'
 								/>
 							))}
 							{Array.from({ length: totalSteps - progress }).map(
 								(_, i) => (
 									<View
 										key={totalSteps - i}
-										className=' h-1 flex-1 rounded-full bg-gray-600'
+										className=' mx-1 h-1 flex-1 rounded-full bg-zinc-600'
 									/>
 								),
 							)}
 						</View>
-						<View className='w-24' />
+						<View className='ml-8 w-5' />
 					</View>
 					<View className='w-full flex-1 flex-col items-center'>
 						<View className='py-8'>
@@ -48,20 +52,6 @@ const CreateAccountLayout: React.FC<{
 						</View>
 						{children}
 					</View>
-					<Pressable
-						className={`w-full py-4 ${
-							isPressable ? 'bg-purple-400' : 'bg-gray-700'
-						} mb-6 flex flex-row justify-center rounded-md`}
-						onPress={onPress}
-					>
-						<Text
-							className={`font-bold ${
-								isPressable ? 'text-white' : 'text-gray-500'
-							}`}
-						>
-							NEXT
-						</Text>
-					</Pressable>
 				</View>
 			</SafeAreaView>
 		</View>

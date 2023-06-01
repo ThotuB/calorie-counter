@@ -1,75 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { ScrollView, View, Text } from 'react-native';
-import { Pressable } from 'react-native';
-import { PencilIcon } from '../../src/icons/solid';
-import { getFood } from '../../src/services/usda-food';
-import { SearchResultFoodDto } from '../../src/types/usda-food';
+import { getFood } from 'src/services/usda-food';
+import { SearchResultFoodDto } from 'src/types/usda-food';
+import FoodCard from 'src/components/food/FoodCard';
 
 const SearchResults: React.FC<{
 	searchTerm: string;
 }> = ({ searchTerm }) => {
 	const page = 1;
-	const { data, status } = useQuery(['foods', searchTerm, page], () =>
+	const { data: foods, status } = useQuery(['foods', searchTerm, page], () =>
 		getFood(searchTerm, page),
 	);
-
-	console.log(data?.foods.map((food) => food.description));
 
 	return (
 		<View className='h-full flex-1 flex-col bg-zinc-900 p-4'>
 			<Text className='font-bold text-zinc-300'>RESULTS</Text>
 			<ScrollView className='mt-2'>
 				<View className='flex-col gap-y-4'>
-					{data?.foods.map((food, idx) => (
+					{foods?.map((food, idx) => (
 						<View key={idx}>
-							<FoodItem food={food} />
+							<FoodCard food={food} />
 						</View>
 					))}
 				</View>
 			</ScrollView>
 		</View>
-	);
-};
-
-const FoodItem: React.FC<{
-	food: SearchResultFoodDto;
-}> = ({
-	food: {
-		brandName,
-		description,
-		householdServingFullText,
-		servingSize,
-		servingSizeUnit,
-		foodNutrients,
-	},
-}) => {
-	const calories = foodNutrients.find(
-		(nutrient) => nutrient.nutrientId === 1008,
-	)?.value!;
-	const totalCalories = Math.round((calories / 100) * servingSize);
-
-	return (
-		<Pressable className='flex-row justify-between rounded-lg bg-zinc-800 px-5 py-3'>
-			<View className='flex-col gap-y-1'>
-				<Text className='text-white'>{description}</Text>
-				<View className='flex-row items-center gap-x-1'>
-					<Text className='text-xs text-zinc-500'>{brandName}</Text>
-					<Text className='text-zinc-500'>·</Text>
-					<Text className='text-xs text-zinc-500'>
-						{totalCalories} kcal
-					</Text>
-				</View>
-				<View className='flex-row items-center gap-x-1'>
-					<PencilIcon svgClassName='w-2 h-2 text-zinc-500' />
-					<Text className='text-zinc-500'>·</Text>
-					<Text className='text-xs text-zinc-500'>
-						{householdServingFullText} ( {servingSize}{' '}
-						{servingSizeUnit} )
-					</Text>
-				</View>
-			</View>
-		</Pressable>
 	);
 };
 

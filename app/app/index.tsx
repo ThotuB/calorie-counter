@@ -1,16 +1,25 @@
-import { Text } from 'react-native';
-import Diary from './diary/Diary';
-import SearchFood from './search-food/SearchFood';
-import SearchResults from './search-food/SearchResults';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
+import { useRouter } from 'expo-router';
+import { Pressable, Text } from 'react-native';
+import { page } from 'src/constants/routes/app';
 
 const App = () => {
+	const isAccountCreated = false;
+
+	const router = useRouter();
+
+	const handlePress = () => {
+		router.push(
+			isAccountCreated ? page.home.diary : page.auth.authentication,
+		);
+	};
+
 	return (
-		<QueryClientProvider client={queryClient}>
-			<SearchFood />
-		</QueryClientProvider>
+		<Pressable
+			className='h-full w-full flex-row items-center justify-center'
+			onPress={handlePress}
+		>
+			<Text>Press me</Text>
+		</Pressable>
 	);
 };
 

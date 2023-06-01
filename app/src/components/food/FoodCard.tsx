@@ -1,82 +1,45 @@
-import { Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, Text, View } from 'react-native';
+import { PencilIcon } from 'src/icons/solid';
+import { Food } from 'src/types/food';
 
 const FoodCard: React.FC<{
-	id: number;
-	name: string;
-	description: string;
-	calories: number;
-	macros: {
-		carbs: number;
-		fat: number;
-		protein: number;
-		calories: number;
-	};
-	company: string;
-	rating: number;
-	servingSize: number;
-	servingUnit: string;
-}> = ({
-	id,
-	description,
-	calories,
-	macros,
-	company,
-	servingSize,
-	servingUnit,
-}) => {
-	const handleSize = () => {
-		undefined;
-	};
+	food: Food;
+}> = ({ food }) => {
+	const { id, name, brand, alternateServingSize, servingSize, calories } =
+		food;
+	const router = useRouter();
 
-	const handleAdd = () => {
-		undefined;
-	};
-
-	const handleDetails = () => {
-		undefined;
+	const handlePress = () => {
+		router.push({
+			pathname: `/nutrition-facts/${id}`,
+			params: { name },
+		});
 	};
 
 	return (
-		<View className='border-dark mx-auto flex w-full max-w-3xl overflow-hidden rounded-xl border-4 bg-purple-300'>
-			<View className='flex w-4/5 flex-col justify-between gap-2 p-4'>
-				<View>
-					<View className='flex justify-between gap-2'>
-						<Text className='text-primary text-2xl font-bold'>
-							{description}
-						</Text>
-					</View>
-
-					<Text className='mt-1 px-2 text-lg font-semibold italic text-white'>
-						{company}
+		<Pressable
+			className='flex-row justify-between rounded-lg bg-zinc-800 px-5 py-3'
+			onPress={handlePress}
+		>
+			<View className='flex-col gap-y-1'>
+				<Text className='text-white'>{name}</Text>
+				<View className='flex-row items-center gap-x-1'>
+					<Text className='text-xs text-zinc-500'>{brand}</Text>
+					<Text className='text-zinc-500'>·</Text>
+					<Text className='text-xs text-zinc-500'>
+						{calories} kcal
 					</Text>
 				</View>
-
-				<View className='flex justify-between'>
-					<View className='flex'>
-						<Text className='text-2xl font-bold text-white'>
-							{calories} kcal
-						</Text>
-						<Text className='self-center pl-2 font-light italic text-white'>
-							/ {servingSize} {servingUnit}
-						</Text>
-					</View>
-					<Text className='flex gap-2'>
-						{/* <Button onClick={handleSize} className="px-3">
-                            <ChevronLeftIcon className="w-5" />
-                            <ChevronUpIcon className="hidden " />
-                        </Button>
-                        <Button onClick={handleAdd} className="px-2">
-                            <PlusIcon className='w-5' />
-                        </Button>
-                        <Button onClick={handleDetails}>
-                            DETAILS
-                        </Button> */}
+				<View className='flex-row items-center gap-x-1'>
+					<PencilIcon svgClassName='w-2 h-2 text-zinc-500' />
+					<Text className='text-zinc-500'>·</Text>
+					<Text className='text-xs text-zinc-500'>
+						{alternateServingSize} ( {servingSize} )
 					</Text>
 				</View>
 			</View>
-
-			{/* <FoodDoughnut macros={macros} calories={macros.calories} /> */}
-		</View>
+		</Pressable>
 	);
 };
 

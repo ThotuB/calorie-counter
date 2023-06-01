@@ -14,16 +14,16 @@
         "forceConsistentCasingInFileNames": true,
         "noEmit": true,
         "baseUrl": ".",
-        "paths": {
-            "@src/*": [
-                "./src/*"
-            ],
-            "@components/*": [
-                "./src/components/*"
-            ],
-            "@icons/*": [
-                "./src/icons/*"
-            ],
-        }
+        // "paths": {
+        //     "@src/*": [
+        //         "./src/*"
+        //     ],
+        //     "@components/*": [
+        //         "./src/components/*"
+        //     ],
+        //     "@icons/*": [
+        //         "./src/icons/*"
+        //     ],
+        // }
     }
 }

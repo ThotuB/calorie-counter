@@ -1,7 +1,14 @@
 import { View, Text } from 'react-native';
 import { XIcon } from 'src/icons/outline';
+import { Nutrients, Vitamins, Minerals, Aminos } from 'src/types/food';
 
-const FoodRating = (props: any) => {
+const FoodRating: React.FC<{
+	calories: number;
+	nutrients: Nutrients;
+	vitamins: Vitamins;
+	minerals: Minerals;
+	aminos: Aminos;
+}> = ({ calories, nutrients, vitamins, minerals, aminos }) => {
 	const pros = [
 		'High in protein',
 		'High in vitamin B6',
@@ -24,7 +31,7 @@ const FoodRating = (props: any) => {
 			<View className='mb-5 flex-col rounded-lg bg-zinc-700 px-3 py-3'>
 				<View className='flex-row items-center justify-center'>
 					<Text className='text-3xl font-semibold text-white'>
-						456
+						{calories}
 					</Text>
 					<Text className='ml-1 text-xl text-white'>kcal</Text>
 				</View>
