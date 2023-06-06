@@ -3,7 +3,7 @@ import { Pressable, Text } from 'react-native';
 import { page } from 'src/constants/routes/app';
 
 const App = () => {
-	const isAccountCreated = false;
+	const isAccountCreated = true;
 
 	const router = useRouter();
 

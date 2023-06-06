@@ -43,7 +43,7 @@ const WeightSelection = () => {
 				<View className='relative flex w-full flex-1 flex-col justify-center'>
 					<View className='absolute z-10 w-full flex-row rounded-full bg-purple-400 py-8' />
 					<View className='z-20 flex w-full flex-row items-center justify-around px-8'>
-						<View>
+						{/* <View>
 							<Carousel
 								vertical
 								data={numberOptions.big}
@@ -88,7 +88,7 @@ const WeightSelection = () => {
 									setSystem(index === 0 ? 'kg' : 'lbs')
 								}
 							/>
-						</View>
+						</View> */}
 					</View>
 				</View>
 				<NextButton href={page.auth.accout_setup.sign_up} />

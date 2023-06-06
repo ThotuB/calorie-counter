@@ -1,31 +1,52 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Pressable, SafeAreaView, Text, View } from 'react-native';
+import {
+	Pressable,
+	SafeAreaView,
+	Image,
+	Text,
+	View,
+	ImageSourcePropType,
+} from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import Water from 'src/components/diary/Water';
 import Macros from 'src/components/food/Macros';
+import { page } from 'src/constants/routes/app';
 import {
 	BellIcon,
 	CalendarIcon,
 	ChevronDownIcon,
 	ChevronLeftIcon,
 	ChevronRightIcon,
+	DotsHorizontalIcon,
 	PlusIcon,
 	UserIcon,
 } from 'src/icons/outline';
 import NavigationLayout from 'src/layouts/NavigationLayout';
 
 const Diary: React.FC = () => {
+	const router = useRouter();
+
 	return (
 		<NavigationLayout tab='diary'>
 			<View className='h-full w-full bg-emerald-400'>
 				<SafeAreaView className='sticky w-full'>
 					<View className='flex-row justify-end gap-x-4 px-6 py-4'>
-						<View>
-							<UserIcon svgClassName='w-6 h-6 text-white' />
-						</View>
-						<View>
-							<BellIcon svgClassName='w-6 h-6 text-white' />
-						</View>
+						<Pressable
+							onPress={() => router.push(page.home.profile)}
+						>
+							<UserIcon
+								svgClassName='w-6 h-6 text-white'
+								strokeWidth={2}
+							/>
+						</Pressable>
+						<Pressable
+							onPress={() => router.push(page.home.notifications)}
+						>
+							<BellIcon svgClassName='w-6 h-6 text-white'
+								strokeWidth={2}
+							/>
+						</Pressable>
 					</View>
 				</SafeAreaView>
 
@@ -101,10 +122,25 @@ const Diary: React.FC = () => {
 									</Pressable>
 								</View>
 								<View className='w-full flex-col items-center'>
-									<Meal title='Breakfast' />
-									<Meal title='Lunch' />
-									<Meal title='Dinner' />
-									<Meal title='Snack' />
+									<Meal
+										title='Breakfast'
+										iconSource={require('assets/food/breakfast.png')}
+									/>
+									<Meal
+										title='Lunch'
+										iconSource={require('assets/food/lunch.png')}
+									/>
+									<Meal
+										title='Dinner'
+										iconSource={require('assets/food/dinner.png')}
+									/>
+									<Meal
+										title='Snack'
+										iconSource={require('assets/food/popcorn.png')}
+									/>
+									<Card>
+										<Water />
+									</Card>
 								</View>
 							</View>
 						</View>
@@ -116,8 +152,9 @@ const Diary: React.FC = () => {
 };
 
 const Meal: React.FC<{
+	iconSource: ImageSourcePropType;
 	title: string;
-}> = ({ title }) => {
+}> = ({ iconSource, title }) => {
 	const router = useRouter();
 
 	const handleAddMeal = () => {
@@ -130,8 +167,8 @@ const Meal: React.FC<{
 				className='flex-row items-center justify-between'
 				onPress={handleAddMeal}
 			>
-				<View className='flex-row items-center gap-x-2'>
-					<View />
+				<View className='flex-row items-center gap-x-4'>
+					<Image source={iconSource} className='h-10 w-10' />
 					<Text className='text-xl font-semibold text-white'>
 						{title}
 					</Text>
@@ -150,7 +187,7 @@ const Meal: React.FC<{
 const Card: React.FC<{
 	children: React.ReactNode;
 }> = ({ children }) => (
-	<View className='my-2 w-full rounded-xl bg-zinc-700 px-6 py-4 shadow-lg'>
+	<View className='my-2 w-full rounded-xl bg-zinc-800 px-6 py-4 shadow-lg'>
 		{children}
 	</View>
 );
