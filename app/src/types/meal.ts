@@ -1,20 +1,23 @@
 import { Food } from "./food";
 
+export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+export type PortionSize = 'serving' | 'gram' | 'ml';
+
 export interface Meal {
     id: number;
     user_id: number;
     food: Food;
-    meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+    meal_type: MealType
     portions: number;
-    portion_size: 'serving' | 'gram' | 'ml';
+    portion_size: PortionSize;
     date: string;
 }
 
 export interface NewMealDto {
     user_id: number;
     food_id: number;
-    meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
+    meal_type: MealType
     portions: number;
-    portion_size: 'serving' | 'gram' | 'ml'
+    portion_size: PortionSize
     date: string;
 }

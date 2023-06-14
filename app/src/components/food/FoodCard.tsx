@@ -5,12 +5,13 @@ import { CheckIcon, PlusIcon } from 'src/icons/outline';
 import { PencilIcon } from 'src/icons/solid';
 import { addMeal } from 'src/services/meal';
 import { Food } from 'src/types/food';
-import { NewMealDto } from 'src/types/meal';
+import { MealType, NewMealDto } from 'src/types/meal';
 import { dateToYYYYMMDD } from 'src/utils/date';
 
 const FoodCard: React.FC<{
 	food: Food;
-}> = ({ food }) => {
+	mealType: MealType;
+}> = ({ food, mealType }) => {
 	const { id, name, brand, alternateServingSize, servingSize, calories } = food;
 	const router = useRouter();
 	const queryClient = useQueryClient();
@@ -32,7 +33,7 @@ const FoodCard: React.FC<{
 		mutate({
 			user_id: 12,
 			food_id: id,
-			meal_type: 'breakfast',
+			meal_type: mealType,
 			portions: 1,
 			portion_size: 'serving',
 			date: dateToYYYYMMDD(new Date()),

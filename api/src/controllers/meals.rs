@@ -14,6 +14,10 @@ pub async fn get_meals(user_id: i32, day: String) -> Json<Vec<MealDto>> {
 
     let meals = Meal::get_meals_by_user_id_and_date(connection, user_id, day);
 
+    if meals.is_empty() {
+        return Json(vec![]);
+    }
+
     let ids = meals.iter().map(|m| m.food_id).collect::<Vec<i32>>();
     let foods = get_usda_foods_by_ids(ids).await.unwrap();
 

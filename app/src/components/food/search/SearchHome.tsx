@@ -4,11 +4,13 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { RecentIcon } from 'src/icons/outline';
 import { HeartIcon, UserPlusIcon } from 'src/icons/solid';
 import FavoriteFoods from './FavoriteFoods';
+import { MealType } from 'src/types/meal';
 
 const SearchHome: React.FC<{
 	calories: number;
 	goal: number;
-}> = ({ calories, goal }) => {
+	mealType: MealType;
+}> = ({ calories, goal, mealType }) => {
 	const [selected, setSelected] = useState<
 		'recent' | 'custom' | 'favorite'
 	>('recent');
@@ -84,7 +86,7 @@ const SearchHome: React.FC<{
 				) : selected === 'custom' ? (
 					<View />
 				) : (
-					<FavoriteFoods userId={11} />
+					<FavoriteFoods userId={11} mealType={mealType} />
 				)}
 			</View>
 		</ScrollView>

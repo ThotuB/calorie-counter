@@ -1,5 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack, useRouter } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
 	Keyboard,
@@ -12,9 +11,14 @@ import {
 import SearchHome from 'src/components/food/search/SearchHome';
 import SearchResults from 'src/components/food/search/SearchResults';
 import { DotsHorizontalIcon, QrIcon, XIcon } from 'src/icons/outline';
+import { MealType } from 'src/types/meal';
 
 const SearchFood: React.FC = () => {
 	const router = useRouter();
+	const params = useLocalSearchParams<{
+		mealType: MealType;
+	}>();
+	const mealType = params.mealType || 'snack';
 
 	const [searchFocus, setSearchFocus] = useState(false);
 	const [searchText, setSearchText] = useState('');
@@ -28,7 +32,7 @@ const SearchFood: React.FC = () => {
 		Keyboard.dismiss();
 	};
 
-	const showSearchResults = searchFocus || searchText !== '';
+	const showSearchResults = searchText !== ''
 
 	return (
 		<>
@@ -40,19 +44,19 @@ const SearchFood: React.FC = () => {
 
 			<View className='h-full w-full flex-col bg-zinc-900'>
 				<SafeAreaView className='sticky w-full bg-zinc-800'>
-					<View className='flex-col gap-y-4 px-4'>
+					<View className='flex-col px-4 mt-4'>
 						<View className='w-full flex-row items-center justify-between'>
 							<Pressable onPress={() => router.back()}>
 								<XIcon svgClassName='w-6 h-6 text-white' />
 							</Pressable>
 							<Text className='font-bold text-white'>
-								Add Food
+								{mealType.charAt(0).toUpperCase() + mealType.slice(1)}
 							</Text>
 							<DotsHorizontalIcon svgClassName='w-6 h-6 text-white' />
 						</View>
-						<View className='mb-6 w-full flex-row items-center justify-between'>
+						<View className='mb-6 mt-4 w-full flex-row items-center justify-between'>
 							<TextInput
-								className='h-8 flex-1 rounded-full bg-zinc-900 px-10 text-white'
+								className='h-10 flex-1 rounded-full bg-zinc-900 px-10 text-white'
 								placeholder='Food, meal or brand'
 								placeholderTextColor={'#9CA3AF'}
 								onFocus={() => setSearchFocus(true)}
@@ -78,9 +82,9 @@ const SearchFood: React.FC = () => {
 					</View>
 				</SafeAreaView>
 				{showSearchResults ? (
-					<SearchResults searchTerm={searchText} />
+					<SearchResults searchTerm={searchText} mealType={mealType} />
 				) : (
-					<SearchHome calories={calories} goal={goal} />
+					<SearchHome calories={calories} goal={goal} mealType={mealType} />
 				)}
 			</View>
 		</>
