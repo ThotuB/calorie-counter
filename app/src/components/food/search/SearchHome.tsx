@@ -1,21 +1,21 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import React, { useState } from 'react';
 import * as Haptics from 'expo-haptics';
-import FoodCard from 'src/components/food/FoodCard';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { RecentIcon } from 'src/icons/outline';
+import { HeartIcon, UserPlusIcon } from 'src/icons/solid';
+import FavoriteFoods from './FavoriteFoods';
 
 const SearchHome: React.FC<{
 	calories: number;
 	goal: number;
 }> = ({ calories, goal }) => {
 	const [selected, setSelected] = useState<
-		'recent' | 'frequent' | 'favorite'
+		'recent' | 'custom' | 'favorite'
 	>('recent');
-
-	const foods = [];
 
 	return (
 		<ScrollView className='h-full flex-1 bg-zinc-900 p-4'>
-			<View className='flex-col rounded-xl bg-zinc-700 px-4 py-5'>
+			<View className='flex-col rounded-xl bg-zinc-800 px-4 py-5'>
 				<View className='flex-col gap-y-1'>
 					<View className='flex-row justify-between'>
 						<Text className='font-bold text-white'>
@@ -55,38 +55,37 @@ const SearchHome: React.FC<{
 					/>
 				</View>
 			</View>
-			<View className='mt-4 flex-row gap-x-4'>
-				<View className='flex-1'>
+			<View className='my-4 flex-row'>
+				<View className='flex-1 mr-2'>
 					<Selectable
 						selected={selected === 'recent'}
 						onPress={() => setSelected('recent')}
-					>
-						Recent
-					</Selectable>
+						Icon={RecentIcon}
+					/>
 				</View>
-				<View className='flex-1'>
+				<View className='flex-1 mx-2'>
 					<Selectable
-						selected={selected === 'frequent'}
-						onPress={() => setSelected('frequent')}
-					>
-						Frequent
-					</Selectable>
+						selected={selected === 'custom'}
+						onPress={() => setSelected('custom')}
+						Icon={UserPlusIcon}
+					/>
 				</View>
-				<View className='flex-1'>
+				<View className='flex-1 ml-2'>
 					<Selectable
 						selected={selected === 'favorite'}
 						onPress={() => setSelected('favorite')}
-					>
-						Favorites
-					</Selectable>
+						Icon={HeartIcon}
+					/>
 				</View>
 			</View>
-			<View className='flex-col gap-y-4'>
-				{foods.map((food, idx) => (
-					<View key={idx}>
-						<FoodCard food={food} />
-					</View>
-				))}
+			<View className=''>
+				{selected === 'recent' ? (
+					<View />
+				) : selected === 'custom' ? (
+					<View />
+				) : (
+					<FavoriteFoods userId={11} />
+				)}
 			</View>
 		</ScrollView>
 	);
@@ -115,10 +114,12 @@ const Macro: React.FC<{
 );
 
 const Selectable: React.FC<{
-	children: React.ReactNode;
 	selected: boolean;
+	Icon: React.FC<{
+		svgClassName: string;
+	}>;
 	onPress: () => void;
-}> = ({ children, selected, onPress }) => {
+}> = ({ Icon, selected, onPress }) => {
 	const handlePress = () => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 		onPress();
@@ -126,18 +127,11 @@ const Selectable: React.FC<{
 
 	return (
 		<Pressable
-			className={`flex-1 flex-row justify-center rounded-xl py-1 ${
-				selected ? 'bg-purple-300' : 'bg-zinc-700'
-			}`}
+			className={`flex-1 flex-row justify-center rounded-xl py-1 ${selected ? 'bg-purple-300' : 'bg-zinc-800'
+				}`}
 			onPress={handlePress}
 		>
-			<Text
-				className={`font-bold ${
-					selected ? 'text-zinc-900' : 'text-gray-300'
-				}`}
-			>
-				{children}
-			</Text>
+			<Icon svgClassName={`w-5 h-5 ${selected ? 'text-zinc-900' : 'text-white'}`} />
 		</Pressable>
 	);
 };

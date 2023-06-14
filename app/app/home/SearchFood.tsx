@@ -39,7 +39,7 @@ const SearchFood: React.FC = () => {
 			/>
 
 			<View className='h-full w-full flex-col bg-zinc-900'>
-				<SafeAreaView className='sticky w-full bg-zinc-700'>
+				<SafeAreaView className='sticky w-full bg-zinc-800'>
 					<View className='flex-col gap-y-4 px-4'>
 						<View className='w-full flex-row items-center justify-between'>
 							<Pressable onPress={() => router.back()}>

@@ -1,28 +1,50 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { CheckIcon, PlusIcon } from 'src/icons/outline';
 import { PencilIcon } from 'src/icons/solid';
+import { addMeal } from 'src/services/meal';
 import { Food } from 'src/types/food';
+import { NewMealDto } from 'src/types/meal';
+import { dateToYYYYMMDD } from 'src/utils/date';
 
 const FoodCard: React.FC<{
 	food: Food;
 }> = ({ food }) => {
-	const { id, name, brand, alternateServingSize, servingSize, calories } =
-		food;
+	const { id, name, brand, alternateServingSize, servingSize, calories } = food;
 	const router = useRouter();
+	const queryClient = useQueryClient();
 
-	const handlePress = () => {
+	const { mutate, status } = useMutation((newMeal: NewMealDto) => addMeal(newMeal), {
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['meal'] });
+		}
+	});
+
+	const handleShowFood = () => {
 		router.push({
 			pathname: `/nutrition-facts/${id}`,
 			params: { name },
 		});
 	};
 
+	const handleAddFood = async () => {
+		mutate({
+			user_id: 12,
+			food_id: id,
+			meal_type: 'breakfast',
+			portions: 1,
+			portion_size: 'serving',
+			date: dateToYYYYMMDD(new Date()),
+		})
+	}
+
 	return (
 		<Pressable
-			className='flex-row justify-between rounded-lg bg-zinc-800 px-5 py-3'
-			onPress={handlePress}
+			className='flex-row justify-between items-center rounded-lg bg-zinc-800 px-5 py-3'
+			onPress={handleShowFood}
 		>
-			<View className='flex-col gap-y-1'>
+			<View className='flex-1 flex-col gap-y-1'>
 				<Text className='text-white'>{name}</Text>
 				<View className='flex-row items-center gap-x-1'>
 					<Text className='text-xs text-zinc-500'>{brand}</Text>
@@ -39,6 +61,20 @@ const FoodCard: React.FC<{
 					</Text>
 				</View>
 			</View>
+			{status === "idle" && <Pressable className='bg-zinc-900 p-2 rounded-full ml-2'
+				onPress={handleAddFood}
+			>
+				<PlusIcon svgClassName='w-8 h-8 text-white' strokeWidth={2.5} />
+			</Pressable>}
+			{status === "loading" && <View className='bg-zinc-900 rounded-full w-12 flex-row justify-center items-center h-12 ml-2 p-2'>
+				<ActivityIndicator size='small' color='white' />
+			</View>}
+			{status === "success" && <View className='bg-emerald-500 rounded-full ml-2 p-2'>
+				<CheckIcon svgClassName='w-8 h-8 text-white' strokeWidth={2.5} />
+			</View>
+
+			}
+
 		</Pressable>
 	);
 };

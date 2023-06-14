@@ -1,5 +1,7 @@
+import { useQuery } from '@tanstack/react-query';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import {
 	Pressable,
 	SafeAreaView,
@@ -23,12 +25,18 @@ import {
 	UserIcon,
 } from 'src/icons/outline';
 import NavigationLayout from 'src/layouts/NavigationLayout';
+import { getMealsForDay } from 'src/services/meal';
+import { Meal } from 'src/types/meal';
+import { dateToYYYYMMDD } from 'src/utils/date';
 
 const Diary: React.FC = () => {
 	const router = useRouter();
+	const [date, setDate] = useState(dateToYYYYMMDD(new Date()));
+
+	const { data: meals, isLoading } = useQuery(["meal", 12, date], () => getMealsForDay(12, date))
 
 	return (
-		<NavigationLayout tab='diary'>
+		<NavigationLayout tab='diary' >
 			<View className='h-full w-full bg-emerald-400'>
 				<SafeAreaView className='sticky w-full'>
 					<View className='flex-row justify-end gap-x-4 px-6 py-4'>
@@ -50,8 +58,8 @@ const Diary: React.FC = () => {
 					</View>
 				</SafeAreaView>
 
-				<ScrollView className=''>
-					<View className='flex-row items-center justify-evenly py-4'>
+				<ScrollView className='bg-zinc-900'>
+					<View className='flex-row items-center justify-evenly py-4 bg-emerald-400'>
 						<View className='flex-col items-center gap-1'>
 							<Text className='text-3xl text-white'>0</Text>
 							<Text className='text-xs text-white'>EATEN</Text>
@@ -72,8 +80,8 @@ const Diary: React.FC = () => {
 
 					<LinearGradient
 						className='flex-1 px-4'
-						colors={['#00000000', '#rgb(24 24 27)']}
-						locations={[0.1, 0.2]}
+						colors={['#rgb(52 211 153)', '#rgb(24 24 27)']}
+						locations={[0.3, 0.7]}
 					>
 						<View className='flex-col items-center gap-y-2'>
 							<View className='flex-row gap-x-2'>
@@ -104,58 +112,68 @@ const Diary: React.FC = () => {
 								</Card>
 							</View>
 
-							<View className='w-full'>
-								<View className='flex-row justify-between'>
-									<Pressable>
-										<ChevronLeftIcon svgClassName='w-6 h-6 text-white' />
-									</Pressable>
-									<View className='flex-row items-center gap-x-2'>
-										<View>
-											<CalendarIcon svgClassName='w-4 h-4 text-white' />
-										</View>
-										<Text className='text-zinc-300'>
-											TODAY, 02 MAY
-										</Text>
-									</View>
-									<Pressable>
-										<ChevronRightIcon svgClassName='w-6 h-6 text-white' />
-									</Pressable>
-								</View>
-								<View className='w-full flex-col items-center'>
-									<Meal
-										title='Breakfast'
-										iconSource={require('assets/food/breakfast.png')}
-									/>
-									<Meal
-										title='Lunch'
-										iconSource={require('assets/food/lunch.png')}
-									/>
-									<Meal
-										title='Dinner'
-										iconSource={require('assets/food/dinner.png')}
-									/>
-									<Meal
-										title='Snack'
-										iconSource={require('assets/food/popcorn.png')}
-									/>
-									<Card>
-										<Water />
-									</Card>
-								</View>
-							</View>
 						</View>
 					</LinearGradient>
+					<View className='w-full px-4'>
+						<View className='flex-row justify-between'>
+							<Pressable>
+								<ChevronLeftIcon svgClassName='w-6 h-6 text-white' />
+							</Pressable>
+							<View className='flex-row items-center gap-x-2'>
+								<View>
+									<CalendarIcon svgClassName='w-4 h-4 text-white' />
+								</View>
+								<Text className='text-zinc-300'>
+									TODAY, 02 MAY
+								</Text>
+							</View>
+							<Pressable>
+								<ChevronRightIcon svgClassName='w-6 h-6 text-white' />
+							</Pressable>
+						</View>
+						<View className='w-full flex-col items-center'>
+							<MealCard
+								title='Breakfast'
+								meals={meals?.filter((meal) => meal.meal_type === 'breakfast') || []}
+								iconSource={require('assets/food/breakfast.png')}
+							/>
+							<MealCard
+								title='Lunch'
+								meals={meals?.filter((meal) => meal.meal_type === 'lunch') || []}
+								iconSource={require('assets/food/lunch.png')}
+							/>
+							<MealCard
+								title='Dinner'
+								meals={meals?.filter((meal) => meal.meal_type === 'dinner') || []}
+								iconSource={require('assets/food/dinner.png')}
+							/>
+							<MealCard
+								title='Snack'
+								meals={meals?.filter((meal) => meal.meal_type === 'snack') || []}
+								iconSource={require('assets/food/popcorn.png')}
+							/>
+							<Card>
+								<Water />
+							</Card>
+						</View>
+					</View>
 				</ScrollView>
 			</View>
-		</NavigationLayout>
+		</NavigationLayout >
 	);
 };
 
-const Meal: React.FC<{
+const MealCard: React.FC<{
 	iconSource: ImageSourcePropType;
+	meals: Meal[];
 	title: string;
-}> = ({ iconSource, title }) => {
+}> = ({ iconSource, meals, title }) => {
 	const router = useRouter();
+
+	const totalCalories = meals.reduce(
+		(acc, meal) => acc + meal.food.calories,
+		0,
+	);
 
 	const handleAddMeal = () => {
 		router.push('/home/SearchFood');
@@ -180,6 +198,26 @@ const Meal: React.FC<{
 					/>
 				</View>
 			</Pressable>
+			{meals.length > 0 && (
+				<>
+					<View className='h-0.5 my-3 w-full rounded-full bg-zinc-700' />
+					{meals.map((meal, idx) => (
+						<View
+							key={idx}
+							className='flex-row items-center justify-between my-1'
+						>
+							<Text className='text-white text-xs'>{meal.food.name}</Text>
+							<Text className='text-white text-xs'>{meal.food.calories} cal</Text>
+						</View>
+					))}
+					<View className='h-0.5 my-3 w-full rounded-full bg-zinc-700' />
+					<View className='flex-row justify-center' >
+						<Text className='text-white text-sm font-semibold'>{totalCalories} cal
+						</Text>
+					</View>
+
+				</>
+			)}
 		</Card>
 	);
 };
@@ -187,7 +225,7 @@ const Meal: React.FC<{
 const Card: React.FC<{
 	children: React.ReactNode;
 }> = ({ children }) => (
-	<View className='my-2 w-full rounded-xl bg-zinc-800 px-6 py-4 shadow-lg'>
+	<View className='my-2 flex-col w-full rounded-xl bg-zinc-800 px-6 py-4 shadow-lg'>
 		{children}
 	</View>
 );

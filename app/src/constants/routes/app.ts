@@ -1,3 +1,5 @@
+import { routeTo } from "src/utils/routes";
+
 const routes = {
     auth: '/auth',
     account_setup: '/auth/account-setup',
@@ -5,10 +7,6 @@ const routes = {
     settings: '/home/settings',
     nutrition_facts: '/nutrition-facts',
 } as const;
-
-const routeTo = <From extends string, To extends string>(from: From, to: To) => {
-    return `${from}${to}` as `${From}${To}`;
-}
 
 export const page = {
     auth: {

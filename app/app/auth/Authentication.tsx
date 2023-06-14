@@ -9,9 +9,9 @@ const Authentication = () => {
 	const router = useRouter();
 	const [open, setOpen] = React.useState(false);
 
-	const handleSignInWithApple = () => {};
+	const handleSignInWithApple = () => { };
 
-	const handleSignInWithGoogle = () => {};
+	const handleSignInWithGoogle = () => { };
 
 	const handleSignInWithEmail = () => {
 		setOpen(false);

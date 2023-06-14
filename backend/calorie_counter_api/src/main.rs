@@ -1,11 +1,31 @@
+use controllers::*;
+
 #[macro_use]
 extern crate rocket;
+extern crate diesel;
+extern crate serde;
 
+mod controllers;
+mod cors;
 mod db;
+mod dto;
+mod models;
+mod schema;
+mod services;
+mod utils;
 
 #[launch]
 fn rocket() -> _ {
-    let connection = &mut db::establish_connection();
-
-    rocket::build().mount("/api", routes![])
+    rocket::build().attach(cors::CORS).mount(
+        "/api",
+        routes![
+            test::test,
+            favorite_foods::get_favorite_foods,
+            favorite_foods::post_favorite_food,
+            favorite_foods::delete_favorite_food,
+            meals::get_meals,
+            meals::post_meal,
+            meals::delete_meal
+        ],
+    )
 }
