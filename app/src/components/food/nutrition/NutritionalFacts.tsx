@@ -21,7 +21,7 @@ const NutritionalFacts: React.FC<{
 					NUTRITIONAL FACTS
 				</Text>
 			</View>
-			<View className='flex-col rounded-lg bg-zinc-700 px-3 py-3'>
+			<View className='flex-col rounded-lg bg-zinc-800 px-3 py-3'>
 				<View className='mb-3 flex-col'>
 					<Text className='text-xl font-semibold text-white'>
 						{food.name}
@@ -31,7 +31,7 @@ const NutritionalFacts: React.FC<{
 					</Text>
 					<View className='mt-3 flex-row justify-between'>
 						<View className='flex-col items-center gap-y-2'>
-							<View className='h-24 w-24 flex-row items-center justify-center rounded-full border-8 border-zinc-900'>
+							<View className='h-24 w-24 flex-row items-center justify-center rounded-full border-8 border-zinc-100'>
 								<Text className='text-2xl font-bold text-white'>
 									{carbsPercent}%
 								</Text>
@@ -41,7 +41,7 @@ const NutritionalFacts: React.FC<{
 							</Text>
 						</View>
 						<View className='flex-col items-center gap-y-2'>
-							<View className='h-24 w-24 flex-row items-center justify-center rounded-full border-8 border-zinc-900'>
+							<View className='h-24 w-24 flex-row items-center justify-center rounded-full border-8 border-zinc-100'>
 								<Text className='text-2xl font-bold text-white'>
 									{proteinPercent}%
 								</Text>
@@ -51,7 +51,7 @@ const NutritionalFacts: React.FC<{
 							</Text>
 						</View>
 						<View className='flex-col items-center gap-y-2'>
-							<View className='h-24 w-24 flex-row items-center justify-center rounded-full border-8 border-zinc-900'>
+							<View className='h-24 w-24 flex-row items-center justify-center rounded-full border-8 border-zinc-100'>
 								<Text className='text-2xl font-bold text-white'>
 									{fatPercent}%
 								</Text>

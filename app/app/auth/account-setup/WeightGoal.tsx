@@ -4,11 +4,10 @@ import { useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import { page } from 'src/constants/routes/app';
 import NextButton from 'src/components/auth/NextButton';
+import { useSetup } from 'src/contexts/SetupContext';
 
 const WeightGoal = () => {
-	const [weightGoal, setWeightGoal] = useState<
-		'' | 'lose' | 'maintain' | 'gain'
-	>('');
+	const { weightGoal, setWeightGoal } = useSetup();
 
 	return (
 		<CreateAccountLayout progress={1} question='What is your weight goal?'>
@@ -51,15 +50,13 @@ const Selectable: React.FC<{
 
 	return (
 		<Pressable
-			className={`my-2 flex-row justify-center rounded-xl py-8 ${
-				selected ? 'bg-purple-300' : 'bg-zinc-700'
-			}`}
+			className={`my-2 flex-row justify-center rounded-xl py-8 ${selected ? 'bg-purple-300' : 'bg-zinc-700'
+				}`}
 			onPress={handlePress}
 		>
 			<Text
-				className={`text-2xl font-bold ${
-					selected ? 'text-white' : 'text-zinc-500'
-				}`}
+				className={`text-2xl font-bold ${selected ? 'text-white' : 'text-zinc-500'
+					}`}
 			>
 				{text}
 			</Text>

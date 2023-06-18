@@ -84,7 +84,7 @@ const SearchFood: React.FC = () => {
 				{showSearchResults ? (
 					<SearchResults searchTerm={searchText} mealType={mealType} />
 				) : (
-					<SearchHome calories={calories} goal={goal} mealType={mealType} />
+					<SearchHome mealType={mealType} />
 				)}
 			</View>
 		</>

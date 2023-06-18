@@ -7,7 +7,7 @@ use super::food::Food;
 #[derive(Serialize)]
 pub struct MealDto {
     pub id: i32,
-    pub user_id: i32,
+    pub user_id: String,
     pub food: Food,
     pub meal_type: MealType,
     pub date: chrono::NaiveDate,

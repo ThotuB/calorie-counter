@@ -3,9 +3,9 @@ import { routeTo } from "src/utils/routes";
 const routes = {
     auth: '/auth',
     account_setup: '/auth/account-setup',
-    home: '/home',
-    settings: '/home/settings',
-    nutrition_facts: '/nutrition-facts',
+    home: '/logged-in/home',
+    settings: '/logged-in/home/settings',
+    nutrition_facts: '/logged-in/nutrition-facts',
 } as const;
 
 export const page = {
@@ -14,6 +14,7 @@ export const page = {
             gender_selection: routeTo(routes.account_setup, '/GenderSelection'),
             height_selection: routeTo(routes.account_setup, '/HeightSelection'),
             weight_selection: routeTo(routes.account_setup, '/WeightSelection'),
+            age_selection: routeTo(routes.account_setup, '/AgeSelection'),
             weight_goal: routeTo(routes.account_setup, '/WeightGoal'),
             sign_up: routeTo(routes.account_setup, '/SignUp'),
             email_auth_create: routeTo(routes.account_setup, '/EmailAuthCreate'),
@@ -38,7 +39,7 @@ export const page = {
             adjust_calories: routeTo(routes.settings, '/AdjustCalories'),
         },
         diary: routeTo(routes.home, '/Diary'),
-        food_search: routeTo(routes.home, '/FoodSearch'),
+        search_food: routeTo(routes.home, '/SearchFood'),
         progress: routeTo(routes.home, '/Progress'),
         notifications: routeTo(routes.home, '/Notifications'),
         profile: routeTo(routes.home, '/Profile'),

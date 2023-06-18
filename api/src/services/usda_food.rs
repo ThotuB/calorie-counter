@@ -1,7 +1,7 @@
 use reqwest::Error;
 use serde::Deserialize;
 
-use crate::{dto::food::Food, utils::food_conversion::usda_food_to_food};
+use crate::dto::food::Food;
 
 static USDA_DOMAIN: &str = "https://api.nal.usda.gov/fdc/v1";
 static USDA_API_KEY: &str = "g8hkV8fS6A17dTaS0DEk464LisJCu8AdN2gKIU2C";
@@ -81,7 +81,7 @@ pub async fn get_usda_food_by_id(id: &str) -> Result<Food, Error> {
         .json::<USDABranndedFoodItemDto>()
         .await?;
 
-    let res = usda_food_to_food(res);
+    let res = Food::from_usda_food(res);
 
     return Ok(res);
 }
@@ -104,7 +104,7 @@ pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<Food>, Error> {
 
     let res = res
         .iter()
-        .map(|food| usda_food_to_food(food.to_owned()))
+        .map(|food| Food::from_usda_food(food.to_owned()))
         .collect::<Vec<_>>();
 
     return Ok(res);

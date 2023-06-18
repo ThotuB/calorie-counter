@@ -18,12 +18,13 @@ export const useMeals = () => {
 
 export const MealProvider: React.FC<{
     children: React.ReactNode;
-}> = ({ children }) => {
+    userId: string;
+}> = ({ children, userId }) => {
     const [date, setDate] = useState(new Date());
 
     const stringDate = dateToYYYYMMDD(date);
 
-    const { data, ...query } = useQuery(["meal", 12, stringDate], () => getMealsForDay(12, stringDate))
+    const { data, ...query } = useQuery(["meal", userId, stringDate], () => getMealsForDay(userId, stringDate))
 
     const changeDate = (date: Date) => {
         setDate(date);

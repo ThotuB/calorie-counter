@@ -7,7 +7,7 @@ use crate::{
 use rocket::serde::json::Json;
 
 #[get("/meals?<user_id>&<day>")]
-pub async fn get_meals(user_id: i32, day: String) -> Json<Vec<MealDto>> {
+pub async fn get_meals(user_id: String, day: String) -> Json<Vec<MealDto>> {
     let connection = &mut db::establish_connection();
 
     let day = chrono::NaiveDate::parse_from_str(&day, "%Y-%m-%d").unwrap();

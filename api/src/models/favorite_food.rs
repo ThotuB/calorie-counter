@@ -1,34 +1,34 @@
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::{pg::PgConnection, result::Error};
 use serde::{Deserialize, Serialize};
 
 use crate::schema::favorite_foods;
 
 #[derive(Queryable, Serialize)]
 pub struct FavoriteFood {
-    pub user_id: i32,
+    pub user_id: String,
     pub food_id: i32,
 }
 
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = favorite_foods)]
 pub struct NewFavoriteFood {
-    pub user_id: i32,
+    pub user_id: String,
     pub food_id: i32,
 }
 
 pub type FavoriteFoodIdsDto = Vec<i32>;
 
 impl FavoriteFood {
-    pub fn get_fav_food(conn: &mut PgConnection, uid: i32, fid: i32) -> FavoriteFood {
+    pub fn get_fav_food(conn: &mut PgConnection, uid: &String, fid: i32) -> Option<FavoriteFood> {
         return favorite_foods::table
             .filter(favorite_foods::user_id.eq(uid))
             .filter(favorite_foods::food_id.eq(fid))
             .first::<FavoriteFood>(conn)
-            .expect("Error loading favorite food");
+            .ok();
     }
 
-    pub fn get_fav_foods_by_user_id(conn: &mut PgConnection, uid: i32) -> FavoriteFoodIdsDto {
+    pub fn get_fav_foods_by_user_id(conn: &mut PgConnection, uid: &String) -> FavoriteFoodIdsDto {
         return favorite_foods::table
             .filter(favorite_foods::user_id.eq(uid))
             .load::<FavoriteFood>(conn)
@@ -38,12 +38,15 @@ impl FavoriteFood {
             .collect();
     }
 
-    pub fn is_fav_food(conn: &mut PgConnection, uid: i32, fid: i32) -> bool {
-        return FavoriteFood::get_fav_food(conn, uid, fid).user_id != 0;
+    pub fn is_fav_food(conn: &mut PgConnection, uid: &String, fid: i32) -> bool {
+        match FavoriteFood::get_fav_food(conn, &uid, fid) {
+            Some(_) => true,
+            None => false,
+        }
     }
 
-    pub fn remove_fav_food(conn: &mut PgConnection, uid: i32, fid: i32) -> bool {
-        if FavoriteFood::get_fav_food(conn, uid, fid).user_id == 0 {
+    pub fn remove_fav_food(conn: &mut PgConnection, uid: &String, fid: i32) -> bool {
+        if FavoriteFood::get_fav_food(conn, &uid, fid).is_none() {
             return false;
         }
 

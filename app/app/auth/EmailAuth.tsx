@@ -12,15 +12,39 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeftIcon, XIcon } from 'src/icons/outline';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
+import { useSignIn } from '@clerk/clerk-expo';
+import { page } from 'src/constants/routes/app';
 
 const EmailAuth = () => {
+	const { signIn, setActive, isLoaded } = useSignIn();
 	const router = useRouter();
+
 	const passwordInputRef = useRef<TextInput>(null);
+
 	const [open, setOpen] = useState(false);
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
 
 	const closeKeyboard = () => {
 		Keyboard.dismiss();
 	};
+
+	const handleSignIn = async () => {
+		if (!isLoaded) return;
+
+		try {
+			const { createdSessionId } = await signIn.create({
+				identifier: email,
+				password,
+			});
+
+			await setActive({ session: createdSessionId });
+			router.push(page.home.diary);
+		} catch (err: any) {
+			console.log(JSON.stringify(err));
+		}
+
+	}
 
 	return (
 		<SafeAreaView className='h-full w-full bg-zinc-900'>
@@ -58,6 +82,8 @@ const EmailAuth = () => {
 									passwordInputRef.current?.focus()
 								}
 								blurOnSubmit={false}
+								value={email}
+								onChangeText={setEmail}
 							/>
 						</View>
 						<View className='w-full flex-col'>
@@ -73,6 +99,10 @@ const EmailAuth = () => {
 								autoComplete='password'
 								textContentType='password'
 								enablesReturnKeyAutomatically
+								returnKeyType='done'
+								onSubmitEditing={handleSignIn}
+								value={password}
+								onChangeText={setPassword}
 							/>
 						</View>
 						<Pressable onPress={() => setOpen(true)}>
@@ -81,7 +111,9 @@ const EmailAuth = () => {
 							</Text>
 						</Pressable>
 					</View>
-					<Pressable className='w-full flex-row justify-center rounded-xl bg-zinc-100 py-4'>
+					<Pressable className='w-full flex-row justify-center rounded-xl bg-zinc-100 py-4'
+						onPress={handleSignIn}
+					>
 						<Text className='text-base font-bold text-zinc-900'>
 							LOG IN
 						</Text>

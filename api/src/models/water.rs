@@ -4,9 +4,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::schema::water;
 
-#[derive(Queryable, Serialize)]
+#[derive(Queryable, Serialize, Deserialize, AsChangeset)]
+#[diesel(table_name = water)]
 pub struct Water {
-    pub user_id: i32,
+    pub user_id: String,
     pub date: chrono::NaiveDate,
     pub amount: i32,
 }
@@ -14,42 +15,44 @@ pub struct Water {
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = water)]
 pub struct NewWater {
-    pub user_id: i32,
+    pub user_id: String,
     pub date: chrono::NaiveDate,
+    pub amount: i32,
 }
 
-// impl Water {
-//     pub fn get_water(connection: &mut PgConnection, uid: i32, day: String) -> Water {
-//         return water::table
-//             .filter(water::user_id.eq(uid))
-//             .filter(water::date.eq(day))
-//             .first::<Water>(connection)
-//             .expect("Error loading water");
-//     }
-//
-//     pub fn get_water_by_user_id(connection: &mut PgConnection, uid: i32) -> Vec<Water> {
-//         return water::table
-//             .filter(water::user_id.eq(uid))
-//             .load::<Water>(connection)
-//             .expect("Error loading water by user id");
-//     }
-//
-//     pub fn update_water(connection: &mut PgConnection, uid: i32, day: String, amount: i32) -> Water {
-//         let water = Water::get_water(connection, uid, day);
-//         let new_water = NewWater {
-//             user_id: uid,
-//             date: water.date,
-//         };
-//         diesel::delete(water::table.filter(water::user_id.eq(uid)).filter(water::date.eq(day)))
-//             .execute(connection)
-//             .expect("Error deleting water");
-//         return Water::create_water(connection, new_water);
-//     }
-//
-//     pub fn create_water(connection: &mut PgConnection, water: NewWater) -> Water {
-//         return diesel::insert_into(water::table)
-//             .values(water)
-//             .get_result(connection)
-//             .expect("Error saving new water");
-//     }
-// }
+impl Water {
+    pub fn get_water(
+        connection: &mut PgConnection,
+        uid: &String,
+        day: chrono::NaiveDate,
+    ) -> Option<Water> {
+        return water::table
+            .filter(water::user_id.eq(uid))
+            .filter(water::date.eq(day))
+            .first::<Water>(connection)
+            .ok();
+    }
+
+    pub fn get_water_by_user_id(connection: &mut PgConnection, uid: &String) -> Vec<Water> {
+        return water::table
+            .filter(water::user_id.eq(uid))
+            .load::<Water>(connection)
+            .expect("Error loading water by user id");
+    }
+
+    pub fn update_water(connection: &mut PgConnection, updated_water: Water) -> Water {
+        return diesel::update(water::table)
+            .filter(water::user_id.eq(&updated_water.user_id))
+            .filter(water::date.eq(&updated_water.date))
+            .set(&updated_water)
+            .get_result(connection)
+            .expect("Error updating water");
+    }
+
+    pub fn create_water(connection: &mut PgConnection, water: NewWater) -> Water {
+        return diesel::insert_into(water::table)
+            .values(water)
+            .get_result(connection)
+            .expect("Error saving new water");
+    }
+}

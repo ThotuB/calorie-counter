@@ -12,7 +12,6 @@ mod dto;
 mod models;
 mod schema;
 mod services;
-mod utils;
 
 #[launch]
 fn rocket() -> _ {
@@ -21,11 +20,15 @@ fn rocket() -> _ {
         routes![
             test::test,
             favorite_foods::get_favorite_foods,
+            favorite_foods::get_favorite_food,
             favorite_foods::post_favorite_food,
             favorite_foods::delete_favorite_food,
             meals::get_meals,
             meals::post_meal,
-            meals::delete_meal
+            meals::delete_meal,
+            water::get_water,
+            water::put_water,
+            settings::post_settings
         ],
     )
 }

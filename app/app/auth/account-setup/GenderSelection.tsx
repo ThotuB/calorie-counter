@@ -1,12 +1,12 @@
 import { View, Text, Pressable } from 'react-native';
-import { useState } from 'react';
 import * as Haptics from 'expo-haptics';
 import CreateAccountLayout from 'src/layouts/CreateAccountLayout';
 import { page } from 'src/constants/routes/app';
 import NextButton from 'src/components/auth/NextButton';
+import { useSetup } from 'src/contexts/SetupContext';
 
 const GenderSelection = () => {
-	const [gender, setGender] = useState<'' | 'female' | 'male'>('');
+	const { gender, setGender } = useSetup();
 
 	return (
 		<CreateAccountLayout progress={2} question='What is your sex?'>
@@ -26,7 +26,7 @@ const GenderSelection = () => {
 					/>
 				</View>
 				<NextButton
-					href={page.auth.accout_setup.height_selection}
+					href={page.auth.accout_setup.age_selection}
 					isPressable={gender !== ''}
 				/>
 			</View>
@@ -47,15 +47,13 @@ const Selectable: React.FC<{
 
 	return (
 		<Pressable
-			className={`my-2 flex-row justify-center rounded-xl py-8 ${
-				selected ? 'bg-purple-300' : 'bg-zinc-700'
-			}`}
+			className={`my-2 flex-row justify-center rounded-xl py-8 ${selected ? 'bg-purple-300' : 'bg-zinc-700'
+				}`}
 			onPress={handlePress}
 		>
 			<Text
-				className={`text-2xl font-bold ${
-					selected ? 'text-white' : 'text-zinc-500'
-				}`}
+				className={`text-2xl font-bold ${selected ? 'text-white' : 'text-zinc-500'
+					}`}
 			>
 				{text}
 			</Text>

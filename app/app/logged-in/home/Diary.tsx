@@ -10,9 +10,10 @@ import {
 	ImageSourcePropType,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import Animated from 'react-native-reanimated';
 import Water from 'src/components/diary/Water';
 import Macros from 'src/components/food/Macros';
+import For from 'src/components/util/For';
+import Show from 'src/components/util/Show';
 import { page } from 'src/constants/routes/app';
 import { useMeals } from 'src/contexts/MealContext';
 import {
@@ -26,15 +27,14 @@ import {
 } from 'src/icons/outline';
 import NavigationLayout from 'src/layouts/NavigationLayout';
 import { Meal, MealType } from 'src/types/meal';
+import { daily } from 'src/utils/daily';
 
 const Diary: React.FC = () => {
 	const router = useRouter();
 
 	const { meals, date, changeDate } = useMeals();
 
-	const eaten = meals.reduce((acc, meal) => {
-		return acc + meal.food.calories;
-	}, 0);
+	const { calories } = daily(meals);
 
 	const onPressTomorrow = () => {
 		const tomorrow = new Date(date);
@@ -74,12 +74,12 @@ const Diary: React.FC = () => {
 				<ScrollView className='bg-zinc-900'>
 					<View className='flex-row items-center justify-evenly py-4 bg-emerald-400'>
 						<View className='flex-col items-center gap-1'>
-							<Text className='text-3xl text-white'>{eaten}</Text>
+							<Text className='text-3xl text-white'>{calories}</Text>
 							<Text className='text-xs text-white'>EATEN</Text>
 						</View>
 
 						<View className='aspect-square w-40 flex-col items-center justify-center rounded-full border-4 border-zinc-900/50'>
-							<Text className='text-4xl text-white'>{2568 - eaten}</Text>
+							<Text className='text-4xl text-white'>{2568 - calories}</Text>
 							<Text className='mt-1 text-xs text-white'>
 								CALORIES LEFT
 							</Text>
@@ -115,7 +115,7 @@ const Diary: React.FC = () => {
 						</View>
 					</LinearGradient>
 					<View className='w-full px-4'>
-						<View className='flex-row justify-between'>
+						<View className='flex-row justify-between py-2'>
 							<Pressable
 								onPress={onPressYesterDay}
 							>
@@ -160,9 +160,11 @@ const Diary: React.FC = () => {
 								meals={meals?.filter((meal) => meal.meal_type === 'snack') || []}
 								iconSource={require('assets/food/popcorn.png')}
 							/>
-							<Card>
-								<Water />
-							</Card>
+							<View className='py-2 w-full'>
+								<Card>
+									<Water />
+								</Card>
+							</View>
 						</View>
 					</View>
 				</ScrollView>
@@ -188,7 +190,7 @@ const MealCard: React.FC<{
 
 	const handleAddMeal = () => {
 		router.push({
-			pathname: '/home/SearchFood',
+			pathname: page.home.search_food,
 			params: {
 				mealType,
 			}
@@ -196,58 +198,67 @@ const MealCard: React.FC<{
 	};
 
 	return (
-		<Card>
-			<Pressable
-				className='flex-row items-center justify-between'
-				onPress={() => setOpen(!open)}
-			>
-				<View className='flex-row items-center gap-x-4'>
-					<Image source={iconSource} className='h-10 w-10' />
-					<Text className='text-xl font-semibold text-white'>
-						{title}
-					</Text>
-				</View>
-				<Pressable className='flex-row items-center justify-center rounded-full bg-zinc-900 p-2'
-					onPress={handleAddMeal}
+		<View className='w-full py-2'>
+			<Card>
+				<Pressable
+					className='flex-row items-center justify-between h-10'
+					onPress={() => setOpen(!open)}
 				>
-					<PlusIcon
-						svgClassName='w-6 h-6 text-white'
-						strokeWidth={2}
-					/>
+					<View className='flex-row items-center gap-x-4'>
+						<Image source={iconSource} className='h-10 w-10' />
+						<View className='flex-col'>
+							<Text className='text-xl font-semibold text-white'>
+								{title}
+							</Text>
+							<Show when={meals.length > 0 && !open}>
+								<Text className='text-xs text-zinc-300'>
+									{meals.length} foods - {totalCalories} calories
+								</Text>
+							</Show>
+						</View>
+					</View>
+					<Pressable className='flex-row items-center justify-center rounded-full bg-zinc-900 p-2'
+						onPress={handleAddMeal}
+					>
+						<PlusIcon
+							svgClassName='w-6 h-6 text-white'
+							strokeWidth={2}
+						/>
+					</Pressable>
 				</Pressable>
-			</Pressable>
-			{meals.length > 0 && open && (
-				<Animated.View>
-					<View className='h-0.5 my-3 w-full rounded-full bg-purple-300' />
+			</Card>
+			<Show when={meals.length > 0 && open}>
+				<View className='mx-4 bg-zinc-700 py-1 px-3'>
 					{meals.map((meal, idx) => (
 						<View
 							key={idx}
 							className='flex-row items-center justify-between my-1'
 						>
 							<Text className='text-white text-xs flex-1'>
-								<Text className='text-purple-300 text-xs'>
-									•{' '}
-								</Text>
 								{meal.food.name}</Text>
-							<Text className='text-white text-xs ml-3'>{meal.food.calories} cal</Text>
+							<Text className='text-white font-medium text-xs ml-3'>{meal.food.calories} cal</Text>
 						</View>
 					))}
-					<View className='h-0.5 my-3 w-full rounded-full bg-purple-300' />
-					<View className='flex-row justify-center' >
-						<Text className='text-white text-sm font-semibold'>{totalCalories} cal
-						</Text>
+				</View>
+				<View className='mx-4 bg-zinc-700 rounded-b-2xl' >
+					<View className='flex-row justify-between'>
+						<For times={8} item={(
+							<View className='h-1 w-8 bg-zinc-900' />
+						)} />
 					</View>
-
-				</Animated.View>
-			)}
-		</Card>
+					<View className='flex-row justify-center py-2' >
+						<Text className='text-white text-sm font-semibold'>{totalCalories} calories</Text>
+					</View>
+				</View>
+			</Show>
+		</View>
 	);
 };
 
 const Card: React.FC<{
 	children: React.ReactNode;
 }> = ({ children }) => (
-	<View className='my-2 flex-col w-full rounded-xl bg-zinc-800 px-6 py-4 shadow-lg'>
+	<View className='flex-col w-full rounded-xl bg-zinc-800 px-6 py-4 shadow-lg'>
 		{children}
 	</View>
 );

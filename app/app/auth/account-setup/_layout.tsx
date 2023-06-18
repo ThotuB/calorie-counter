@@ -1,15 +1,18 @@
 import { Stack } from 'expo-router';
+import { SetupProvider } from 'src/contexts/SetupContext';
 
 const Layout: React.FC = () => {
 	return (
-		<Stack
-			initialRouteName='accout-creation/WeightGoal'
-			screenOptions={{
-				headerShown: false,
-				animation: 'none',
-				orientation: 'portrait',
-			}}
-		/>
+		<SetupProvider>
+			<Stack
+				initialRouteName='accout-creation/WeightGoal'
+				screenOptions={{
+					headerShown: false,
+					animation: 'none',
+					orientation: 'portrait',
+				}}
+			/>
+		</SetupProvider>
 	);
 };
 

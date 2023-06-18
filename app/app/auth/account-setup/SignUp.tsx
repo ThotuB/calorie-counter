@@ -4,11 +4,12 @@ import CreateAccountLayout from 'src/layouts/CreateAccountLayout';
 import { useRouter } from 'expo-router';
 import { page } from 'src/constants/routes/app';
 import TermsOfService from 'src/components/auth/TermsOfService';
-import { useAuth } from 'src/contexts/AuthContext';
+import { useSetup } from 'src/contexts/SetupContext';
+import { useClerk } from '@clerk/clerk-expo';
 
 const SignUp = () => {
 	const router = useRouter();
-	const { logInGoogle } = useAuth();
+	const { finaliseSetup } = useSetup();
 
 	// 	const { startOAuthFlow: startOAuthGoogle } = useOAuth({
 	// 		strategy: 'oauth_google',
@@ -47,10 +48,13 @@ const SignUp = () => {
 	// 		}
 	// 	}, []);
 
-	const onSignUpWithApple = () => {};
+	const onSignUpWithApple = async () => {
+		await finaliseSetup(12);
+		router.push(page.home.diary)
+	};
 
 	const onSignUpWithGoogle = async () => {
-		await logInGoogle();
+		// await logInGoogle();
 	};
 
 	const onSignUpWithEmail = () => {

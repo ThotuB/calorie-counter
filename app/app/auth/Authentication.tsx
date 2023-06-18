@@ -1,5 +1,5 @@
 import { View, Text, Pressable, Modal } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { page } from 'src/constants/routes/app';
@@ -7,7 +7,7 @@ import TermsOfService from 'src/components/auth/TermsOfService';
 
 const Authentication = () => {
 	const router = useRouter();
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false);
 
 	const handleSignInWithApple = () => { };
 

@@ -1,5 +1,5 @@
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use diesel::{pg::PgConnection, result::Error};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 
@@ -27,7 +27,7 @@ pub enum PortionSize {
 #[derive(Queryable, Serialize)]
 pub struct Meal {
     pub id: i32,
-    pub user_id: i32,
+    pub user_id: String,
     pub food_id: i32,
     pub meal_type: MealType,
     pub date: chrono::NaiveDate,
@@ -38,7 +38,7 @@ pub struct Meal {
 #[derive(Insertable, Deserialize)]
 #[diesel(table_name = meals)]
 pub struct NewMeal {
-    pub user_id: i32,
+    pub user_id: String,
     pub food_id: i32,
     pub meal_type: MealType,
     pub date: chrono::NaiveDate,
@@ -47,14 +47,14 @@ pub struct NewMeal {
 }
 
 impl Meal {
-    pub fn get_meal(connection: &mut PgConnection, mid: i32) -> Meal {
+    pub fn get_meal(connection: &mut PgConnection, mid: i32) -> Option<Meal> {
         return meals::table
             .filter(meals::id.eq(mid))
             .first::<Meal>(connection)
-            .expect("Error loading meal");
+            .ok();
     }
 
-    pub fn get_meals_by_user_id(connection: &mut PgConnection, uid: i32) -> Vec<Meal> {
+    pub fn get_meals_by_user_id(connection: &mut PgConnection, uid: String) -> Vec<Meal> {
         return meals::table
             .filter(meals::user_id.eq(uid))
             .load::<Meal>(connection)
@@ -63,7 +63,7 @@ impl Meal {
 
     pub fn get_meals_by_user_id_and_date(
         connection: &mut PgConnection,
-        uid: i32,
+        uid: String,
         date: chrono::NaiveDate,
     ) -> Vec<Meal> {
         return meals::table
@@ -74,7 +74,7 @@ impl Meal {
     }
 
     pub fn remove_meal(connection: &mut PgConnection, mid: i32) -> bool {
-        if Meal::get_meal(connection, mid).user_id == 0 {
+        if Meal::get_meal(connection, mid).is_none() {
             return false;
         }
 

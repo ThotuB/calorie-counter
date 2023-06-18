@@ -5,7 +5,7 @@ export type PortionSize = 'serving' | 'gram' | 'ml';
 
 export interface Meal {
     id: number;
-    user_id: number;
+    user_id: string;
     food: Food;
     meal_type: MealType
     portions: number;
@@ -14,7 +14,7 @@ export interface Meal {
 }
 
 export interface NewMealDto {
-    user_id: number;
+    user_id: string;
     food_id: number;
     meal_type: MealType
     portions: number;

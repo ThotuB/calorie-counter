@@ -9,7 +9,7 @@ const CreateAccountLayout: React.FC<{
 	progress: number;
 }> = ({ children, question, progress }) => {
 	const router = useRouter();
-	const totalSteps = 5;
+	const totalSteps = 6;
 
 	return (
 		<View className='bg-zinc-900'>

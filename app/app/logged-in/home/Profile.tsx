@@ -1,13 +1,15 @@
-import { View, Text, Pressable, Image, ScrollView } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import React from 'react';
 import TitleLayout from 'src/layouts/TitleLayout';
 import { Stack, useRouter } from 'expo-router';
 import { ChevronRightIcon, CogIcon } from 'src/icons/outline';
 import CategoryLayout from 'src/layouts/CategoryLayout';
 import { page } from 'src/constants/routes/app';
+import { useAuthedUser } from 'src/contexts/UserContext';
 
 const Profile = () => {
 	const router = useRouter();
+	const { user } = useAuthedUser();
 
 	const onPressSettings = () => {
 		router.push(page.home.settings.settings);
@@ -36,15 +38,17 @@ const Profile = () => {
 					<CategoryLayout>
 						<View className='flex-row gap-x-6'>
 							<Image
-								source={require('/assets/food/fish.png')}
-								className='h-16 w-16'
+								source={{
+									uri: user.imageUrl
+								}}
+								className='h-16 w-16 rounded-full'
 							/>
 							<View className='flex-col'>
 								<Text className='text-2xl font-bold text-white'>
-									John Doe
+									@{user.username}
 								</Text>
 								<Text className='text-base text-white'>
-									@johndoe
+									{user.primaryEmailAddress?.emailAddress}
 								</Text>
 							</View>
 						</View>

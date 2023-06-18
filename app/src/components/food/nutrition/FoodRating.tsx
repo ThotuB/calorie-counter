@@ -28,7 +28,7 @@ const FoodRating: React.FC<{
 			<View className='mb-3'>
 				<Text className='font-bold text-zinc-300'>FOOD RATING</Text>
 			</View>
-			<View className='mb-5 flex-col rounded-lg bg-zinc-700 px-3 py-3'>
+			<View className='mb-5 flex-col rounded-lg bg-zinc-800 px-3 py-3'>
 				<View className='flex-row items-center justify-center'>
 					<Text className='text-3xl font-semibold text-white'>
 						{calories}

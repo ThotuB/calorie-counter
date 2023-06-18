@@ -8,7 +8,7 @@ export const addMeal = async (newMeal: NewMealDto) => {
     return res.data;
 }
 
-export const getMealsForDay = async (userId: number, date: string) => {
+export const getMealsForDay = async (userId: string, date: string) => {
     const res = await axios.get<Meal[]>(api.meals, {
         params: {
             user_id: userId,

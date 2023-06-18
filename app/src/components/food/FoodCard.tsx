@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { page } from 'src/constants/routes/app';
+import { useAuthedUser } from 'src/contexts/UserContext';
 import { CheckIcon, PlusIcon } from 'src/icons/outline';
 import { PencilIcon } from 'src/icons/solid';
 import { addMeal } from 'src/services/meal';
@@ -15,6 +17,7 @@ const FoodCard: React.FC<{
 	const { id, name, brand, alternateServingSize, servingSize, calories } = food;
 	const router = useRouter();
 	const queryClient = useQueryClient();
+	const { user } = useAuthedUser();
 
 	const { mutate, status } = useMutation((newMeal: NewMealDto) => addMeal(newMeal), {
 		onSuccess: () => {
@@ -24,14 +27,14 @@ const FoodCard: React.FC<{
 
 	const handleShowFood = () => {
 		router.push({
-			pathname: `/nutrition-facts/${id}`,
+			pathname: `${page.nutrition_facts.id}/${id}`,
 			params: { name },
 		});
 	};
 
 	const handleAddFood = async () => {
 		mutate({
-			user_id: 12,
+			user_id: user.id,
 			food_id: id,
 			meal_type: mealType,
 			portions: 1,

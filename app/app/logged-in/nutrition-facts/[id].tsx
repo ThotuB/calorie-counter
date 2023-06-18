@@ -11,28 +11,59 @@ import { useState } from 'react';
 import FoodRating from 'src/components/food/nutrition/FoodRating';
 import { ChevronLeftIcon, ChevronRightIcon, XIcon } from 'src/icons/outline';
 import { HeartIcon } from 'src/icons/outline';
+import { HeartIcon as HearIconSolid } from 'src/icons/solid';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getFoodById } from 'src/services/usda-food';
 import NutritionalFacts from 'src/components/food/nutrition/NutritionalFacts';
-import { addFavoriteFood } from 'src/services/favorite-food';
+import { addFavoriteFood, isFavoriteFood, removeFavoriteFood } from 'src/services/favorite-food';
 import { addMeal } from 'src/services/meal';
 import { dateToYYYYMMDD } from 'src/utils/date';
+import { useAuthedUser } from 'src/contexts/UserContext';
+import { NewMealDto } from 'src/types/meal';
+import { page } from 'src/constants/routes/app';
 
-const NutritionFacts: React.FC<{}> = () => {
+const NutritionFacts: React.FC = () => {
 	const router = useRouter();
 	const { id, name } = useLocalSearchParams();
+	const { user } = useAuthedUser();
+	const { invalidateQueries } = useQueryClient();
 
-	const { data: food, isLoading } = useQuery(['food', id], () =>
-		getFoodById(id as string),
-	);
+	const fid = parseInt(id as string);
 
+	const [isFavorite, setIsFavorite] = useState(false);
 	const [nrOfServings, setNrOfServings] = useState('1');
 	const [servingSize, setServingSize] = useState<'grams' | '100 grams' | 'serving'>(`grams`);
 	const [modalVisible, setModalVisible] = useState(false);
 
-	const onPressHeart = async () => {
-		await addFavoriteFood(12, parseInt(id as string));
+	// queries
+	const { data: food, isLoading } = useQuery(['food', id], () =>
+		getFoodById(id as string),
+	);
+
+	useQuery(['favorite-food', id], () => isFavoriteFood(user.id, fid), {
+		onSuccess: (data) => {
+			setIsFavorite(data);
+		}
+	})
+
+	// mutations
+	const { mutate: addFavFoodMutation, isLoading: isAddFavFoodLoading } = useMutation(() => addFavoriteFood(user.id, fid))
+
+	const { mutate: removeFavFoodMutation, isLoading: isRemoveFavFoodLoading } = useMutation(() => removeFavoriteFood(user.id, fid))
+
+	const { mutate: addMealMutation, isLoading: isAddMealLoading } = useMutation((newMeal: NewMealDto) => addMeal(newMeal), {
+		onSuccess: () => {
+			invalidateQueries(['meal']);
+			router.push(page.home.diary);
+		}
+	})
+
+	const onPressHeart = () => {
+		setIsFavorite(!isFavorite);
+		isFavorite ?
+			removeFavFoodMutation() :
+			addFavFoodMutation();
 	}
 
 	const onPressTrack = async () => {
@@ -47,9 +78,9 @@ const NutritionFacts: React.FC<{}> = () => {
 			'serving': 'serving',
 		} as const)[servingSize];
 
-		await addMeal({
-			user_id: 12,
-			food_id: parseInt(id as string),
+		addMealMutation({
+			user_id: user.id,
+			food_id: fid,
 			meal_type: 'breakfast',
 			portions: portions,
 			portion_size: portionSize,
@@ -70,7 +101,11 @@ const NutritionFacts: React.FC<{}> = () => {
 					<Pressable
 						onPress={onPressHeart}
 					>
-						<HeartIcon svgClassName='w-6 h-6 text-white' />
+						{isFavorite ? (
+							<HearIconSolid svgClassName='w-6 h-6 text-white' />
+						) : (
+							<HeartIcon svgClassName='w-6 h-6 text-white' />
+						)}
 					</Pressable>
 				</View>
 			</SafeAreaView>
@@ -81,7 +116,7 @@ const NutritionFacts: React.FC<{}> = () => {
 							<View className='mb-5 flex-row gap-x-3'>
 								<View className='h-14 w-14 flex-row items-center justify-center rounded-lg bg-zinc-800'>
 									<TextInput
-										className='text-base font-bold text-white'
+										className='text-2xl font-bold text-white pb-2'
 										value={nrOfServings}
 										onChangeText={setNrOfServings}
 										keyboardType='numeric'
@@ -163,6 +198,7 @@ const NutritionFacts: React.FC<{}> = () => {
 							shadowOpacity: 1,
 							shadowRadius: 10,
 						}}
+						disabled={isAddMealLoading}
 						onPress={onPressTrack}
 					>
 						<Text className='text-base font-bold text-zinc-900'>

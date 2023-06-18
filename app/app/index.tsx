@@ -1,26 +1,22 @@
-import { useRouter } from 'expo-router';
+import { useSession, useUser } from '@clerk/clerk-expo';
+import { Redirect, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { Pressable, Text } from 'react-native';
 import { page } from 'src/constants/routes/app';
 
 const App = () => {
-	const isAccountCreated = true;
+	const { isSignedIn, isLoaded } = useUser();
+	const plm = useSession();
 
-	const router = useRouter();
+	if (!isLoaded) {
+		return null;
+	}
 
-	const handlePress = () => {
-		router.push(
-			isAccountCreated ? page.home.diary : page.auth.authentication,
-		);
-	};
+	if (!isSignedIn) {
+		return <Redirect href={page.auth.authentication} />;
+	}
 
-	return (
-		<Pressable
-			className='h-full w-full flex-row items-center justify-center'
-			onPress={handlePress}
-		>
-			<Text>Press me</Text>
-		</Pressable>
-	);
+	return <Redirect href={page.home.diary} />;
 };
 
 export default App;

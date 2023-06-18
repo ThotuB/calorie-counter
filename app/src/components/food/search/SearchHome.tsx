@@ -5,12 +5,20 @@ import { RecentIcon } from 'src/icons/outline';
 import { HeartIcon, UserPlusIcon } from 'src/icons/solid';
 import FavoriteFoods from './FavoriteFoods';
 import { MealType } from 'src/types/meal';
+import { useAuthedUser } from 'src/contexts/UserContext';
+import { useMeals } from 'src/contexts/MealContext';
+import { daily } from 'src/utils/daily';
 
 const SearchHome: React.FC<{
-	calories: number;
-	goal: number;
 	mealType: MealType;
-}> = ({ calories, goal, mealType }) => {
+}> = ({ mealType }) => {
+	const { user } = useAuthedUser();
+	const { meals } = useMeals();
+
+	const goal = 2000;
+
+	const { carbs, protein, fat, calories } = daily(meals);
+
 	const [selected, setSelected] = useState<
 		'recent' | 'custom' | 'favorite'
 	>('recent');
@@ -40,19 +48,19 @@ const SearchHome: React.FC<{
 					<Macro
 						barClassName='bg-orange-300'
 						name='Carbs'
-						value={30}
+						value={carbs}
 						goal={321}
 					/>
 					<Macro
 						barClassName='bg-pink-300'
 						name='Protein'
-						value={54}
+						value={protein}
 						goal={128}
 					/>
 					<Macro
 						barClassName='bg-purple-300'
 						name='Fat'
-						value={78}
+						value={fat}
 						goal={86}
 					/>
 				</View>
@@ -86,7 +94,7 @@ const SearchHome: React.FC<{
 				) : selected === 'custom' ? (
 					<View />
 				) : (
-					<FavoriteFoods userId={11} mealType={mealType} />
+					<FavoriteFoods userId={user.id} mealType={mealType} />
 				)}
 			</View>
 		</ScrollView>

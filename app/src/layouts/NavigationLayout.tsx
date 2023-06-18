@@ -2,6 +2,7 @@ import { SafeAreaView, View, Text, Pressable } from 'react-native';
 import { BookIcon, PieChartIcon } from 'src/icons/solid';
 import { PlusIcon } from 'src/icons/outline';
 import { Link } from 'expo-router';
+import { page } from 'src/constants/routes/app';
 
 const NavigationLayout: React.FC<{
 	children: React.ReactNode;
@@ -13,7 +14,7 @@ const NavigationLayout: React.FC<{
 			<SafeAreaView className='bg-zinc-800'>
 				<View className='relative w-full flex-row justify-center'>
 					<View className='absolute -top-6'>
-						<Link href='/home/SearchFood'>
+						<Link href={page.home.search_food}>
 							<View className='rounded-full bg-purple-300 p-3 '>
 								<PlusIcon svgClassName='w-8 h-8 text-white' />
 							</View>
@@ -22,7 +23,7 @@ const NavigationLayout: React.FC<{
 				</View>
 				<View className='flex flex-row items-center justify-around py-4'>
 					<NavigationItem
-						href='/home/Diary'
+						href={page.home.diary}
 						name='Diary'
 						selected={tab === 'diary'}
 					>
@@ -36,7 +37,7 @@ const NavigationLayout: React.FC<{
 						/>
 					</NavigationItem>
 					<NavigationItem
-						href='/home/Progress'
+						href={page.home.progress}
 						name='Progress'
 						selected={tab === 'progress'}
 					>

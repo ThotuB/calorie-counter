@@ -1,14 +1,13 @@
 import { View, Text } from 'react-native';
 import React from 'react';
 import { useMeals } from 'src/contexts/MealContext';
+import { daily } from 'src/utils/daily';
 
 const Macros: React.FC<{
 }> = () => {
 	const { meals } = useMeals();
 
-	const carbs = meals.reduce((acc, meal) => acc + meal.food.nutrients.carbs, 0);
-	const protein = meals.reduce((acc, meal) => acc + meal.food.nutrients.protein, 0);
-	const fat = meals.reduce((acc, meal) => acc + meal.food.nutrients.fat, 0);
+	const { carbs, protein, fat } = daily(meals);
 
 	return (<View className='flex-row justify-between'>
 		<Macro
