@@ -4,7 +4,8 @@ const routes = {
     auth: '/auth',
     account_setup: '/auth/account-setup',
     home: '/logged-in/home',
-    settings: '/logged-in/home/settings',
+    food: '/logged-in/food',
+    settings: '/logged-in/settings',
     nutrition_facts: '/logged-in/nutrition-facts',
 } as const;
 
@@ -17,10 +18,10 @@ export const page = {
             age_selection: routeTo(routes.account_setup, '/AgeSelection'),
             weight_goal: routeTo(routes.account_setup, '/WeightGoal'),
             sign_up: routeTo(routes.account_setup, '/SignUp'),
-            email_auth_create: routeTo(routes.account_setup, '/EmailAuthCreate'),
+            email_sign_up: routeTo(routes.account_setup, '/EmailSignUp'),
         },
         authentication: routeTo(routes.auth, '/Authentication'),
-        email_auth: routeTo(routes.auth, '/EmailAuth'),
+        email_sign_in: routeTo(routes.auth, '/EmailSignIn'),
     },
     home: {
         settings: {
@@ -39,10 +40,13 @@ export const page = {
             adjust_calories: routeTo(routes.settings, '/AdjustCalories'),
         },
         diary: routeTo(routes.home, '/Diary'),
-        search_food: routeTo(routes.home, '/SearchFood'),
-        progress: routeTo(routes.home, '/Progress'),
-        notifications: routeTo(routes.home, '/Notifications'),
         profile: routeTo(routes.home, '/Profile'),
+        stats: routeTo(routes.home, '/Stats'),
+        progress: routeTo(routes.home, '/Progress'),
+    },
+    food: {
+        search_food: routeTo(routes.food, '/SearchFood'),
+        scan_food: routeTo(routes.food, '/ScanFood'),
     },
     nutrition_facts: {
         id: routeTo(routes.nutrition_facts, '/'),

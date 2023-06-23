@@ -1,7 +1,7 @@
 use reqwest::Error;
 use serde::Deserialize;
 
-use crate::dto::food::Food;
+use crate::dto::food_dtos::Food;
 
 static USDA_DOMAIN: &str = "https://api.nal.usda.gov/fdc/v1";
 static USDA_API_KEY: &str = "g8hkV8fS6A17dTaS0DEk464LisJCu8AdN2gKIU2C";
@@ -22,14 +22,16 @@ impl Routes {
     }
 }
 #[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct USDANutrientDto {
     pub id: Option<i32>,
     pub number: Option<String>,
     pub name: Option<String>,
-    pub unitName: Option<String>,
+    pub unit_name: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct USDAFoodNutrientDto {
     pub id: Option<i32>,
     pub amount: Option<f32>,
@@ -37,18 +39,19 @@ pub struct USDAFoodNutrientDto {
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct USDABranndedFoodItemDto {
-    pub fdcId: i32,
+    pub fdc_id: i32,
     pub description: String,
-    pub dataType: String,
-    pub brandName: Option<String>,
-    pub brandOwner: Option<String>,
-    pub householdServingFullText: Option<String>,
+    pub data_type: String,
+    pub brand_name: Option<String>,
+    pub brand_owner: Option<String>,
+    pub household_serving_full_text: Option<String>,
     pub ingredients: Option<String>,
-    pub servingSize: Option<f32>,
-    pub servingSizeUnit: Option<String>,
-    pub brandedFoodCategory: Option<String>,
-    pub foodNutrients: Vec<USDAFoodNutrientDto>,
+    pub serving_size: Option<f32>,
+    pub serving_size_unit: Option<String>,
+    pub branded_food_category: Option<String>,
+    pub food_nutrients: Vec<USDAFoodNutrientDto>,
 }
 
 pub async fn get_usda_food_by_search(search: &str, page: i32) -> Result<(), Error> {

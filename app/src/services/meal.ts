@@ -1,8 +1,8 @@
 import axios from "axios"
 import { api } from "src/constants/routes/api";
-import { Meal, NewMealDto } from "src/types/meal";
+import { Meal, CreateMeal } from "src/types/meal-types";
 
-export const addMeal = async (newMeal: NewMealDto) => {
+export const addMeal = async (newMeal: CreateMeal) => {
     const res = await axios.post(api.meals, newMeal);
 
     return res.data;

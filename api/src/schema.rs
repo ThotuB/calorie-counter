@@ -2,6 +2,10 @@
 
 pub mod sql_types {
     #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "gender"))]
+    pub struct Gender;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "meal_type"))]
     pub struct MealType;
 
@@ -31,6 +35,20 @@ diesel::table! {
 }
 
 diesel::table! {
+    macro_goals (user_id) {
+        #[max_length = 32]
+        user_id -> Varchar,
+        calories -> Int4,
+        carbs -> Int4,
+        protein -> Int4,
+        fat -> Int4,
+        percent_carbs -> Float4,
+        percent_protein -> Float4,
+        percent_fat -> Float4,
+    }
+}
+
+diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::MealType;
     use super::sql_types::PortionSize;
@@ -44,12 +62,17 @@ diesel::table! {
         date -> Date,
         portions -> Float4,
         portion_size -> PortionSize,
+        calories -> Int4,
+        carbs -> Float4,
+        protein -> Float4,
+        fat -> Float4,
     }
 }
 
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::WeightGoal;
+    use super::sql_types::Gender;
     use super::sql_types::System;
     use super::sql_types::WaterSize;
 
@@ -57,6 +80,7 @@ diesel::table! {
         #[max_length = 32]
         user_id -> Varchar,
         weight_goal -> WeightGoal,
+        gender -> Gender,
         age -> Int4,
         height -> Int4,
         weight -> Int4,
@@ -77,6 +101,7 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     favorite_foods,
+    macro_goals,
     meals,
     settings,
     water,

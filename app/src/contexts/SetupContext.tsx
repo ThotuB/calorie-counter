@@ -1,9 +1,10 @@
+import { useOAuth, useSignUp } from '@clerk/clerk-expo';
 import { createContext, useContext, useState } from 'react';
-import { createSettings } from 'src/services/settings';
-import { Settings } from 'src/types/settings';
+import { createAccount } from 'src/services/account';
+import { Gender, Settings, WeightGoal } from 'src/types/settings';
 
-type WeightGoalOptions = '' | 'lose' | 'maintain' | 'gain';
-type GenderOptions = '' | 'female' | 'male'
+type WeightGoalOptions = '' | WeightGoal;
+type GenderOptions = '' | Gender
 type HeightOptions = {
     type: 'metric';
     cm: number;
@@ -31,7 +32,11 @@ interface SetupContext {
     setWeight: (weight: WeightOptions) => void;
     age: number;
     setAge: (age: number) => void;
-    finaliseSetup: (uid: number) => Promise<Settings | undefined>;
+    finaliseSetup: (uid: string) => Promise<Settings | undefined>;
+    createAccountWithApple: () => Promise<void>;
+    createAccountWithGoogle: () => Promise<void>;
+    createAccountWithEmail: (username: string, email: string, password: string) => Promise<void>;
+    verifyEmail: (code: string) => Promise<void>;
 }
 
 const SetupContext = createContext({} as SetupContext);
@@ -43,6 +48,10 @@ export const useSetup = () => {
 export const SetupProvider: React.FC<{
     children: React.ReactNode;
 }> = ({ children }) => {
+    const { startOAuthFlow: oauthFlowGoogle } = useOAuth({ strategy: 'oauth_google' })
+    const { startOAuthFlow: oauthFlowApple } = useOAuth({ strategy: 'oauth_apple' })
+    const { signUp, setActive, isLoaded } = useSignUp();
+
     const [weightGoal, setWeightGoal] = useState<WeightGoalOptions>('');
     const [gender, setGender] = useState<GenderOptions>('');
     const [age, setAge] = useState<number>(20);
@@ -55,27 +64,55 @@ export const SetupProvider: React.FC<{
         kg: 70
     })
 
-    console.log(weightGoal, gender, age, height, weight);
+    if (!isLoaded) return null;
 
-    const finaliseSetup = async (userId: number) => {
-        if (gender === '' || weightGoal === '') return;
+    const finaliseSetup = async (userId: string) => {
+        if (gender === '' || weightGoal === '') throw new Error;
 
-        const w = weight.type === 'metric' ? weight.kg : weight.lb * 0.453592;
-        const h = height.type === 'metric' ? height.cm : (height.ft * 12 + height.in) * 2.54;
-
-        const bmr = {
-            'male': 66.5 + 13.75 * w + 5.003 * h - 6.755 * age,
-            'female': 655.1 + 9.563 * w + 1.850 * h - 4.676 * age
-        }[gender]
-
-        return await createSettings({
+        return await createAccount({
             user_id: userId,
             weight_goal: weightGoal,
+            gender: gender,
             age: age,
             height: height.type === 'metric' ? height.cm : (height.ft * 12 + height.in),
             weight: weight.type === 'metric' ? weight.kg : weight.lb,
             system: height.type,
         })
+    }
+
+    const createAccountWithApple = async () => {
+        const { createdSessionId, setActive } = await oauthFlowApple({});
+        if (!setActive) throw new Error;
+
+        await setActive({ session: createdSessionId });
+    }
+
+    const createAccountWithGoogle = async () => {
+        const { createdSessionId, setActive } = await oauthFlowGoogle({});
+        if (!setActive) throw new Error;
+
+        await setActive({ session: createdSessionId });
+    }
+
+    const createAccountWithEmail = async (username: string, emailAddress: string, password: string) => {
+        await signUp.create({
+            username,
+            emailAddress,
+            password,
+        })
+
+        await signUp.prepareEmailAddressVerification()
+    }
+
+    const verifyEmail = async (code: string) => {
+        const { createdSessionId, createdUserId } = await signUp.attemptEmailAddressVerification({
+            code: code,
+        })
+
+        if (!createdSessionId || !createdUserId) throw new Error;
+
+        await setActive({ session: createdSessionId })
+        return await finaliseSetup(createdUserId)
     }
 
     return (
@@ -91,7 +128,11 @@ export const SetupProvider: React.FC<{
                 setWeight,
                 age,
                 setAge,
-                finaliseSetup
+                finaliseSetup,
+                createAccountWithApple,
+                createAccountWithGoogle,
+                createAccountWithEmail,
+                verifyEmail,
             }}
         >
             {children}

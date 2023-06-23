@@ -2,6 +2,7 @@ import { View, Text, Pressable, SafeAreaView, ScrollView } from 'react-native';
 import React from 'react';
 import { ChevronLeftIcon, XIcon } from 'src/icons/outline';
 import { useRouter } from 'expo-router';
+import { page } from 'src/constants/routes/app';
 
 const TitleLayout: React.FC<{
 	children: React.ReactNode;
@@ -17,11 +18,15 @@ const TitleLayout: React.FC<{
 	const Layout = safe ? SafeAreaView : View;
 	const Scroll = scrollable ? ScrollView : View;
 
+	const onPressBack = () => {
+		back ? router.back() : router.push(page.home.diary);
+	};
+
 	return (
 		<View className='h-full w-full flex-col bg-zinc-900'>
 			<SafeAreaView className='sticky bg-zinc-800'>
 				<View className='w-full flex-row items-center justify-between px-4 py-3'>
-					<Pressable onPress={() => router.back()}>
+					<Pressable onPress={onPressBack}>
 						{back ? (
 							<ChevronLeftIcon
 								svgClassName='w-6 h-6 text-white'

@@ -18,16 +18,19 @@ import { getFoodById } from 'src/services/usda-food';
 import NutritionalFacts from 'src/components/food/nutrition/NutritionalFacts';
 import { addFavoriteFood, isFavoriteFood, removeFavoriteFood } from 'src/services/favorite-food';
 import { addMeal } from 'src/services/meal';
-import { dateToYYYYMMDD } from 'src/utils/date';
 import { useAuthedUser } from 'src/contexts/UserContext';
-import { NewMealDto } from 'src/types/meal';
+import { CreateMeal } from 'src/types/meal-types';
 import { page } from 'src/constants/routes/app';
+import FoodRatingPlaceholder from 'src/components/food/nutrition/FoodRatingPlaceholder';
+import NutritionalFactsPlaceholder from 'src/components/food/nutrition/NutritionalFactsPlaceholder';
+import { useDate } from 'src/contexts/DateContext';
 
 const NutritionFacts: React.FC = () => {
 	const router = useRouter();
 	const { id, name } = useLocalSearchParams();
 	const { user } = useAuthedUser();
 	const { invalidateQueries } = useQueryClient();
+	const { dateYMD } = useDate();
 
 	const fid = parseInt(id as string);
 
@@ -52,7 +55,7 @@ const NutritionFacts: React.FC = () => {
 
 	const { mutate: removeFavFoodMutation, isLoading: isRemoveFavFoodLoading } = useMutation(() => removeFavoriteFood(user.id, fid))
 
-	const { mutate: addMealMutation, isLoading: isAddMealLoading } = useMutation((newMeal: NewMealDto) => addMeal(newMeal), {
+	const { mutate: addMealMutation, isLoading: isAddMealLoading } = useMutation((newMeal: CreateMeal) => addMeal(newMeal), {
 		onSuccess: () => {
 			invalidateQueries(['meal']);
 			router.push(page.home.diary);
@@ -67,6 +70,8 @@ const NutritionFacts: React.FC = () => {
 	}
 
 	const onPressTrack = async () => {
+		if (!food) return;
+
 		let portions = parseInt(nrOfServings);
 		if (servingSize === '100 grams') {
 			portions = portions * 100;
@@ -80,11 +85,11 @@ const NutritionFacts: React.FC = () => {
 
 		addMealMutation({
 			user_id: user.id,
-			food_id: fid,
+			food: food,
 			meal_type: 'breakfast',
 			portions: portions,
 			portion_size: portionSize,
-			date: dateToYYYYMMDD(new Date()),
+			date: dateYMD,
 		})
 	}
 
@@ -111,79 +116,80 @@ const NutritionFacts: React.FC = () => {
 			</SafeAreaView>
 			<SafeAreaView className='flex-1'>
 				<ScrollView className='flex-1'>
-					{food && (
-						<View className='flex-1 flex-col px-4 py-3'>
-							<View className='mb-5 flex-row gap-x-3'>
-								<View className='h-14 w-14 flex-row items-center justify-center rounded-lg bg-zinc-800'>
-									<TextInput
-										className='text-2xl font-bold text-white pb-2'
-										value={nrOfServings}
-										onChangeText={setNrOfServings}
-										keyboardType='numeric'
-										selectTextOnFocus={true}
-									/>
-								</View>
-								<Pressable className='h-14 flex-1 flex-row items-center rounded-lg bg-zinc-800 px-4'
-									onPress={() => setModalVisible(true)}
-								>
-									<Text className='flex-1 flex-row items-center justify-center text-base font-bold text-white'>
-										{servingSize}
-									</Text>
-									<ChevronRightIcon
-										svgClassName='w-4 h-4 text-white'
-										strokeWidth={4}
-									/>
-								</Pressable>
+					<View className='flex-1 flex-col px-4 py-3'>
+						<View className='mb-5 flex-row gap-x-3'>
+							<View className='h-14 w-14 flex-row items-center justify-center rounded-lg bg-zinc-800'>
+								<TextInput
+									className='text-2xl font-bold text-white pb-2'
+									value={nrOfServings}
+									onChangeText={setNrOfServings}
+									keyboardType='numeric'
+									selectTextOnFocus={true}
+								/>
 							</View>
+							<Pressable className='h-14 flex-1 flex-row items-center rounded-lg bg-zinc-800 px-4'
+								onPress={() => setModalVisible(true)}
+							>
+								<Text className='flex-1 flex-row items-center justify-center text-base font-bold text-white'>
+									{servingSize}
+								</Text>
+								<ChevronRightIcon
+									svgClassName='w-4 h-4 text-white'
+									strokeWidth={4}
+								/>
+							</Pressable>
+						</View>
 
+						{food ?
 							<FoodRating
 								calories={food.calories}
 								nutrients={food.nutrients}
 								vitamins={food.vitamins}
 								minerals={food.minerals}
-								aminos={food.aminos}
-							/>
+								aminos={food.amino_acids}
+							/> :
+							<FoodRatingPlaceholder />
+						}
 
-							<NutritionalFacts food={food} />
+						{food ? <NutritionalFacts food={food} /> : <NutritionalFactsPlaceholder />}
 
-							<View className='mt-6 mb-4 w-full flex-row justify-center'>
-								<Text className='font-bold text-zinc-300'>
-									#{food.id} USDA FoodData Central
-								</Text>
-							</View>
-							<Modal visible={modalVisible}
-								animationType='slide'
-								transparent={true}
-
-							>
-								<Pressable
-									className='h-full w-full bg-zinc-900 opacity-60'
-									onPress={() => setModalVisible(false)}
-								/>
-								<View className='absolute bottom-0 w-full flex-col items-center justify-between rounded-t-3xl bg-zinc-800 py-6 px-6'>
-									<View className='w-full flex-row items-center justify-between'>
-										<Pressable
-											className='w-10'
-											onPress={() => setModalVisible(false)}
-										>
-											<XIcon svgClassName='w-6 h-6 text-white' strokeWidth={3} />
-										</Pressable>
-										<Text className='text-lg font-bold text-white'>
-											HOW MUCH?
-										</Text>
-										<Pressable
-											className='w-10'
-											onPress={() => setModalVisible(false)}
-										>
-											<Text className='text-base text-emerald-500'>
-												Done
-											</Text>
-										</Pressable>
-									</View>
-								</View>
-							</Modal>
+						<View className='mt-6 mb-4 w-full flex-row justify-center'>
+							<Text className='font-bold text-zinc-300'>
+								#{food?.id} USDA FoodData Central
+							</Text>
 						</View>
-					)}
+						<Modal visible={modalVisible}
+							animationType='slide'
+							transparent={true}
+
+						>
+							<Pressable
+								className='h-full w-full bg-zinc-900 opacity-60'
+								onPress={() => setModalVisible(false)}
+							/>
+							<View className='absolute bottom-0 w-full flex-col items-center justify-between rounded-t-3xl bg-zinc-800 py-6 px-6'>
+								<View className='w-full flex-row items-center justify-between'>
+									<Pressable
+										className='w-10'
+										onPress={() => setModalVisible(false)}
+									>
+										<XIcon svgClassName='w-6 h-6 text-white' strokeWidth={3} />
+									</Pressable>
+									<Text className='text-lg font-bold text-white'>
+										HOW MUCH?
+									</Text>
+									<Pressable
+										className='w-10'
+										onPress={() => setModalVisible(false)}
+									>
+										<Text className='text-base text-emerald-500'>
+											Done
+										</Text>
+									</Pressable>
+								</View>
+							</View>
+						</Modal>
+					</View>
 				</ScrollView>
 
 				<View className='w-full flex-row items-center justify-center px-4'>

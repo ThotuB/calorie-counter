@@ -1,7 +1,7 @@
 use crate::{
     db,
-    dto::meal::MealDto,
-    models::meal::{Meal, NewMeal},
+    dto::meal_dtos::{CreateMealDto, MealDto},
+    models::meal::Meal,
     services::usda_food::get_usda_foods_by_ids,
 };
 use rocket::serde::json::Json;
@@ -12,7 +12,7 @@ pub async fn get_meals(user_id: String, day: String) -> Json<Vec<MealDto>> {
 
     let day = chrono::NaiveDate::parse_from_str(&day, "%Y-%m-%d").unwrap();
 
-    let meals = Meal::get_meals_by_user_id_and_date(connection, user_id, day);
+    let meals = Meal::get_meals_by_user_id_and_date(connection, &user_id, day);
 
     if meals.is_empty() {
         return Json(vec![]);
@@ -29,10 +29,11 @@ pub async fn get_meals(user_id: String, day: String) -> Json<Vec<MealDto>> {
 }
 
 #[post("/meals", format = "json", data = "<meal>")]
-pub fn post_meal(meal: Json<NewMeal>) -> Json<Meal> {
+pub fn post_meal(meal: Json<CreateMealDto>) -> Json<Meal> {
     let connection = &mut db::establish_connection();
+    let meal = meal.into_inner();
 
-    return Json(Meal::create_meal(connection, meal.into_inner()));
+    return Json(Meal::create_meal(connection, meal.into()));
 }
 
 #[delete("/meals/<meal_id>")]

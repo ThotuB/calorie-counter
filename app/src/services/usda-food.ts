@@ -1,6 +1,5 @@
 import axios from "axios";
 import { usda_api } from "src/constants/routes/usda-api";
-import { Food } from "src/types/food";
 import { FoodDto, SearchResultDto } from "src/types/usda-food";
 import { usdaFoodToFood, usdaSearchFoodToFood } from "src/utils/usda-food";
 

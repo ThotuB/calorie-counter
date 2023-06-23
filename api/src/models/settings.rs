@@ -1,9 +1,17 @@
+use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::{pg::PgConnection, result::Error};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::schema::settings;
+
+#[derive(DbEnum, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[ExistingTypePath = "crate::schema::sql_types::Gender"]
+pub enum Gender {
+    Male,
+    Female,
+}
 
 #[derive(DbEnum, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -31,9 +39,11 @@ pub enum WeightGoal {
 }
 
 #[derive(Queryable, Serialize)]
+#[diesel(table_name = settings)]
 pub struct Settings {
     pub user_id: String,
     pub weight_goal: WeightGoal,
+    pub gender: Gender,
     pub age: i32,
     pub height: i32,
     pub weight: i32,
@@ -47,6 +57,7 @@ pub struct Settings {
 pub struct NewSettings {
     pub user_id: String,
     pub weight_goal: WeightGoal,
+    pub gender: Gender,
     pub age: i32,
     pub height: i32,
     pub weight: i32,
@@ -54,14 +65,14 @@ pub struct NewSettings {
 }
 
 impl Settings {
-    pub fn get_settings(connection: &mut PgConnection, uid: String) -> Option<Settings> {
+    pub fn get_settings(connection: &mut PgConnection, uid: &String) -> Option<Settings> {
         return settings::table
             .filter(settings::user_id.eq(uid))
             .first::<Settings>(connection)
             .ok();
     }
 
-    pub fn create_settings(connection: &mut PgConnection, new_settings: NewSettings) -> Settings {
+    pub fn create_settings(connection: &mut PgConnection, new_settings: &NewSettings) -> Settings {
         return diesel::insert_into(settings::table)
             .values(new_settings)
             .get_result(connection)

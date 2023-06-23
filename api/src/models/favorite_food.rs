@@ -1,5 +1,5 @@
+use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::{pg::PgConnection, result::Error};
 use serde::{Deserialize, Serialize};
 
 use crate::schema::favorite_foods;

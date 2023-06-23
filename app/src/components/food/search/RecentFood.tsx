@@ -1,14 +1,21 @@
 import { View, Text } from 'react-native'
 import React, { useEffect } from 'react'
 import FoodCard from '../FoodCard'
-import { MealType } from 'src/types/meal'
-import { useMeals } from 'src/contexts/MealContext'
+import { MealType } from 'src/types/meal-types'
+import { useQuery } from '@tanstack/react-query'
+import { useDate } from 'src/contexts/DateContext'
+import { getMealsForDay } from 'src/services/meal'
+import { useAuthedUser } from 'src/contexts/UserContext'
 
 const RecentFoods: React.FC<{
-    userId: string;
     mealType: MealType;
-}> = ({ userId, mealType }) => {
-    const { meals } = useMeals()
+}> = ({ mealType }) => {
+    const { dateYMD } = useDate();
+    const { user } = useAuthedUser();
+
+    const { data: meals, isSuccess } = useQuery(["meal", user.id, dateYMD], () => getMealsForDay(user.id, dateYMD))
+
+    if (!isSuccess) return null
 
     const foods = meals.map(meal => meal.food)
 

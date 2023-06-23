@@ -3,7 +3,7 @@ import { ScrollView, View, Text } from 'react-native';
 import { getFood } from 'src/services/usda-food';
 import { SearchResultFoodDto } from 'src/types/usda-food';
 import FoodCard from 'src/components/food/FoodCard';
-import { MealType } from 'src/types/meal';
+import { MealType } from 'src/types/meal-types';
 
 const SearchResults: React.FC<{
 	searchTerm: string;

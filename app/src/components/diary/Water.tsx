@@ -1,10 +1,32 @@
 import { View, Text, Pressable, Image } from 'react-native'
 import React, { useState } from 'react'
 import { DotsHorizontalIcon, PlusIcon } from 'src/icons/outline'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { getWater, putWater } from 'src/services/water'
+import { useAuthedUser } from 'src/contexts/UserContext'
+import { useDate } from 'src/contexts/DateContext'
 
 const Water = () => {
     const goal = 4
     const [water, setWater] = useState(0)
+    const { user } = useAuthedUser()
+    const { dateYMD } = useDate()
+
+    const { } = useQuery(['water'], () => getWater(user.id, dateYMD), {
+        onSuccess: (data) => {
+            setWater(data)
+        },
+        onError: () => {
+            setWater(0)
+        }
+    })
+
+    const { mutate: mutateWater } = useMutation((amount: number) => putWater(user.id, dateYMD, amount))
+
+    const setWaterAmount = (amount: number) => {
+        setWater(amount)
+        mutateWater(amount)
+    }
 
     return (
         <View className='flex-col'>
@@ -26,7 +48,7 @@ const Water = () => {
                 {[...Array(water)].map((_, i) => (
                     <Pressable
                         key={i}
-                        onPress={() => setWater(water - 1)}
+                        onPress={() => setWaterAmount(water - 1)}
                         className='flex-1 flex-row justify-center'
                     >
                         <Image source={require('/assets/food/water-0.5.png')}
@@ -37,7 +59,7 @@ const Water = () => {
                 {[...Array(goal - water)].map((_, i) => (
                     <Pressable
                         key={i}
-                        onPress={() => setWater(water + i + 1)}
+                        onPress={() => setWaterAmount(water + i + 1)}
                         className='flex-1 flex-row justify-center items-center'
                     >
                         {i == 0 &&

@@ -6,7 +6,9 @@ import { ChevronDownIcon, ChevronRightIcon } from 'src/icons/outline';
 const NutritionalFacts: React.FC<{
 	food: Food;
 }> = ({ food }) => {
-	const { nutrients, vitamins, minerals, aminos } = food;
+	const { name, brand } = food;
+	const { nutrients, vitamins, minerals, amino_acids } = food;
+	const { serving_size, serving_size_unit, alternative_serving_size } = food;
 	const { carbs, protein, fat } = nutrients;
 
 	const total = carbs * 4 + protein * 4 + fat * 9;
@@ -24,10 +26,10 @@ const NutritionalFacts: React.FC<{
 			<View className='flex-col rounded-lg bg-zinc-800 px-3 py-3'>
 				<View className='mb-3 flex-col'>
 					<Text className='text-xl font-semibold text-white'>
-						{food.name}
+						{name}
 					</Text>
 					<Text className=' text-base text-white'>
-						{food.alternateServingSize} ({food.servingSize})
+						{alternative_serving_size} ({serving_size.toFixed(0)} {serving_size_unit})
 					</Text>
 					<View className='mt-3 flex-row justify-between'>
 						<View className='flex-col items-center gap-y-2'>
@@ -68,7 +70,7 @@ const NutritionalFacts: React.FC<{
 						nutrients={food.nutrients}
 						vitamins={food.vitamins}
 						minerals={food.minerals}
-						aminos={food.aminos}
+						aminos={food.amino_acids}
 					/>
 				</View>
 			</View>
@@ -83,28 +85,28 @@ const NutrientTable: React.FC<{
 	minerals: Minerals;
 	aminos: Aminos;
 }> = ({ calories, nutrients, vitamins, minerals, aminos }) => (
-	<View className='flex-col gap-y-3'>
-		<View className='h-0.5 w-full rounded-full bg-zinc-600' />
+	<View className='flex-col'>
+		<Divider />
 		<NutrientRow name='Calories' amount={calories} unit='kcal' bold />
-		<View className='h-0.5 w-full rounded-full bg-zinc-600' />
+		<Divider />
 		<NutrientRow name='Carbs' amount={nutrients.carbs} unit='g' bold />
 		<NutrientRow name='Fiber' amount={nutrients.fiber} unit='g' />
 		<NutrientRow name='Sugar' amount={nutrients.sugar} unit='g' />
-		<View className='h-0.5 w-full rounded-full bg-zinc-600' />
+		<Divider />
 		<NutrientRow name='Protein' amount={nutrients.protein} unit='g' bold />
-		<View className='h-0.5 w-full rounded-full bg-zinc-600' />
+		<Divider />
 		<NutrientRow name='Fat' amount={nutrients.fat} unit='g' bold />
 		<NutrientRow
 			name='Saturated Fat'
-			amount={nutrients.saturatedFat}
+			amount={nutrients.saturated_fat}
 			unit='g'
 		/>
 		<NutrientRow
 			name='Unsaturated Fat'
-			amount={nutrients.unsaturatedFat}
+			amount={nutrients.unsaturated_fat}
 			unit='g'
 		/>
-		<View className='h-0.5 w-full rounded-full bg-zinc-600' />
+		<Divider />
 
 		<Section title='VITAMINS'>
 			<NutrientRow name='Vitamin A' amount={vitamins.A} unit='mcg' />
@@ -121,6 +123,7 @@ const NutrientTable: React.FC<{
 			<NutrientRow name='Vitamin E' amount={vitamins.E} unit='mg' />
 			<NutrientRow name='Vitamin K' amount={vitamins.K} unit='mcg' />
 		</Section>
+		<Divider />
 
 		<Section title='MINERALS'>
 			<NutrientRow name='Calcium' amount={minerals.calcium} unit='mg' />
@@ -163,6 +166,7 @@ const NutrientTable: React.FC<{
 			<NutrientRow name='Sodium' amount={minerals.sodium} unit='mg' />
 			<NutrientRow name='Zinc' amount={minerals.zinc} unit='mg' />
 		</Section>
+		<Divider />
 
 		<Section title='AMINO ACIDS'>
 			<NutrientRow name='Alanine' amount={aminos.alanine} unit='g' />
@@ -203,6 +207,8 @@ const NutrientTable: React.FC<{
 	</View>
 );
 
+const Divider = () => <View className='h-0.5 my-1 w-full rounded-full bg-zinc-600' />
+
 const Section: React.FC<{
 	title: string;
 	children: React.ReactNode;
@@ -211,7 +217,7 @@ const Section: React.FC<{
 
 	return (
 		<>
-			<View className='mt-3 flex-row items-center justify-between'>
+			<View className='my-2 flex-row items-center justify-between'>
 				<Text className='text-lg font-bold text-zinc-300'>{title}</Text>
 				<Pressable onPress={() => setIsOpen(!isOpen)}>
 					{isOpen ? (
@@ -228,7 +234,6 @@ const Section: React.FC<{
 				</Pressable>
 			</View>
 			{isOpen && children}
-			<View className='mt-3 h-0.5 w-full rounded-full bg-zinc-600' />
 		</>
 	);
 };
@@ -242,7 +247,7 @@ const NutrientRow: React.FC<{
 	if (amount === undefined) return null;
 
 	return (
-		<View className='mt-3 flex-row justify-between'>
+		<View className='my-1 flex-row justify-between'>
 			<Text
 				className={`text-base text-zinc-300 ${bold ? 'font-bold' : ''}`}
 			>

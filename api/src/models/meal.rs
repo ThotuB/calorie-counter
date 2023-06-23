@@ -1,11 +1,11 @@
-use diesel::prelude::*;
-use diesel::{pg::PgConnection, result::Error};
+use diesel::{dsl::sql, pg::PgConnection};
+use diesel::{prelude::*, sql_types, FromSqlRow};
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
 
 use crate::schema::meals;
 
-#[derive(DbEnum, Debug, Serialize, Deserialize)]
+#[derive(DbEnum, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
 #[ExistingTypePath = "crate::schema::sql_types::MealType"]
 pub enum MealType {
@@ -33,6 +33,10 @@ pub struct Meal {
     pub date: chrono::NaiveDate,
     pub portions: f32,
     pub portion_size: PortionSize,
+    pub calories: i32,
+    pub protein: f32,
+    pub carbs: f32,
+    pub fat: f32,
 }
 
 #[derive(Insertable, Deserialize)]
@@ -44,6 +48,10 @@ pub struct NewMeal {
     pub date: chrono::NaiveDate,
     pub portions: f32,
     pub portion_size: PortionSize,
+    pub calories: i32,
+    pub protein: f32,
+    pub carbs: f32,
+    pub fat: f32,
 }
 
 impl Meal {
@@ -54,7 +62,7 @@ impl Meal {
             .ok();
     }
 
-    pub fn get_meals_by_user_id(connection: &mut PgConnection, uid: String) -> Vec<Meal> {
+    pub fn get_meals_by_user_id(connection: &mut PgConnection, uid: &String) -> Vec<Meal> {
         return meals::table
             .filter(meals::user_id.eq(uid))
             .load::<Meal>(connection)
@@ -63,7 +71,7 @@ impl Meal {
 
     pub fn get_meals_by_user_id_and_date(
         connection: &mut PgConnection,
-        uid: String,
+        uid: &String,
         date: chrono::NaiveDate,
     ) -> Vec<Meal> {
         return meals::table
@@ -72,6 +80,78 @@ impl Meal {
             .load::<Meal>(connection)
             .expect("Error loading meals by user id and date");
     }
+
+    pub fn get_meals_by_user_id_between_dates(
+        connection: &mut PgConnection,
+        uid: &String,
+        start_date: &chrono::NaiveDate,
+        end_date: &chrono::NaiveDate,
+    ) -> Vec<MealGroup> {
+        return meals::table
+            .filter(meals::user_id.eq(uid))
+            .filter(meals::date.ge(start_date))
+            .filter(meals::date.le(end_date))
+            .group_by(meals::date)
+            .select((
+                meals::date,
+                sql::<sql_types::Integer>("CAST(SUM(calories) AS INTEGER)"),
+                sql::<sql_types::Float>("SUM(protein)"),
+                sql::<sql_types::Float>("SUM(carbs)"),
+                sql::<sql_types::Float>("SUM(fat)"),
+            ))
+            .order_by(meals::date.asc())
+            .load::<MealGroup>(connection)
+            .expect("Error loading meals by user id and date");
+    }
+
+    pub fn get_averages_per_meal_type_by_user_id_between_dates(
+        connection: &mut PgConnection,
+        uid: &String,
+        start_date: &chrono::NaiveDate,
+        end_date: &chrono::NaiveDate,
+    ) -> Vec<MealAveragePerMealType> {
+        return meals::table
+            .filter(meals::user_id.eq(uid))
+            .filter(meals::date.ge(start_date))
+            .filter(meals::date.le(end_date))
+            .group_by(meals::meal_type)
+            .select((
+                meals::meal_type,
+                sql::<sql_types::Integer>("CAST(AVG(calories) AS INTEGER)"),
+                sql::<sql_types::Float>("CAST(AVG(protein) AS REAL)"),
+                sql::<sql_types::Float>("CAST(AVG(carbs) AS REAL)"),
+                sql::<sql_types::Float>("CAST(AVG(fat) AS REAL)"),
+            ))
+            .load::<MealAveragePerMealType>(connection)
+            .expect("Error loading averages per meal type by user id and date");
+    }
+
+    // pub fn get_averages_by_user_id_between_dates(
+    //     connection: &mut PgConnection,
+    //     uid: &String,
+    //     start_date: &chrono::NaiveDate,
+    //     end_date: &chrono::NaiveDate,
+    // ) -> MealAverage {
+    //     return meals::table
+    //         .filter(meals::user_id.eq(uid))
+    //         .filter(meals::date.ge(start_date))
+    //         .filter(meals::date.le(end_date))
+    //         .group_by(meals::date)
+    //         .select((
+    //             sql::<sql_types::Integer>("CAST(SUM(calories) AS INTEGER)"),
+    //             sql::<sql_types::Float>("CAST(SUM(protein) AS REAL)"),
+    //             sql::<sql_types::Float>("CAST(SUM(carbs) AS REAL)"),
+    //             sql::<sql_types::Float>("CAST(SUM(fat) AS REAL)"),
+    //         ))
+    //         .select((
+    //             sql::<sql_types::Integer>("CAST(AVG(calories) AS INTEGER)"),
+    //             sql::<sql_types::Float>("CAST(AVG(protein) AS REAL)"),
+    //             sql::<sql_types::Float>("CAST(AVG(carbs) AS REAL)"),
+    //             sql::<sql_types::Float>("CAST(AVG(fat) AS REAL)"),
+    //         ))
+    //         .first::<MealAverage>(connection)
+    //         .expect("Error loading averages by user id and date");
+    // }
 
     pub fn remove_meal(connection: &mut PgConnection, mid: i32) -> bool {
         if Meal::get_meal(connection, mid).is_none() {
@@ -88,5 +168,68 @@ impl Meal {
             .values(meal)
             .get_result(connection)
             .expect("Error saving new meal");
+    }
+}
+
+#[derive(Queryable, Debug)]
+pub struct MealGroup {
+    pub date: chrono::NaiveDate,
+    pub calories: i32,
+    pub protein: f32,
+    pub carbs: f32,
+    pub fat: f32,
+}
+
+impl From<(chrono::NaiveDate, i32, f32, f32, f32)> for MealGroup {
+    fn from(
+        (date, calories, protein, carbs, fat): (chrono::NaiveDate, i32, f32, f32, f32),
+    ) -> Self {
+        MealGroup {
+            date,
+            calories,
+            protein,
+            carbs,
+            fat,
+        }
+    }
+}
+
+#[derive(Queryable, Debug)]
+pub struct MealAveragePerMealType {
+    pub meal_type: MealType,
+    pub calories: i32,
+    pub protein: f32,
+    pub carbs: f32,
+    pub fat: f32,
+}
+
+impl From<(MealType, i32, f32, f32, f32)> for MealAveragePerMealType {
+    fn from((meal_type, calories, protein, carbs, fat): (MealType, i32, f32, f32, f32)) -> Self {
+        MealAveragePerMealType {
+            meal_type,
+            calories,
+            protein,
+            carbs,
+            fat,
+        }
+    }
+}
+
+#[derive(Queryable, Debug)]
+pub struct MealAverage {
+    pub calories: i32,
+    pub protein: f32,
+    pub carbs: f32,
+    pub fat: f32,
+}
+
+impl From<(i32, f32, f32, f32)> for MealAverage {
+    fn from((calories, protein, carbs, fat): (i32, f32, f32, f32)) -> Self {
+        MealAverage {
+            calories,
+            protein,
+            carbs,
+            fat,
+        }
     }
 }

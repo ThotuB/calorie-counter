@@ -2,7 +2,7 @@ use rocket::serde::json::Json;
 
 use crate::{
     db,
-    dto::food::Food,
+    dto::food_dtos::Food,
     models::favorite_food::{FavoriteFood, NewFavoriteFood},
     services::usda_food::get_usda_foods_by_ids,
 };
@@ -12,8 +12,6 @@ pub async fn get_favorite_foods(user_id: String) -> Json<Vec<Food>> {
     let connection = &mut db::establish_connection();
 
     let ids = FavoriteFood::get_fav_foods_by_user_id(connection, &user_id);
-
-    println!("GET - favorite_foods: {:?}", ids);
 
     if ids.is_empty() {
         return Json(vec![]);

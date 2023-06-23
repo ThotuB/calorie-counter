@@ -2,10 +2,12 @@
 CREATE TYPE weight_goal AS ENUM ('lose', 'maintain', 'gain');
 CREATE TYPE system as ENUM ('metric', 'imperial');
 CREATE TYPE water_size as ENUM ('glass', 'bottle');
+CREATE TYPE gender as ENUM ('male', 'female')
 
 CREATE TABLE settings (
     user_id VARCHAR(32) PRIMARY KEY,
     weight_goal weight_goal NOT NULL,
+    gender gender NOT NULL,
     age INTEGER NOT NULL,
     height INTEGER NOT NULL,
     weight INTEGER NOT NULL,

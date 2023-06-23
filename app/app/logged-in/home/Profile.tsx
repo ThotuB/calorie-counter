@@ -1,39 +1,24 @@
-import { View, Text, Pressable, Image } from 'react-native';
-import React from 'react';
-import TitleLayout from 'src/layouts/TitleLayout';
+import { View, Text, Pressable, Image, ImageBackground } from 'react-native';
+import React, { useMemo } from 'react';
 import { Stack, useRouter } from 'expo-router';
-import { ChevronRightIcon, CogIcon } from 'src/icons/outline';
+import { ChevronRightIcon } from 'src/icons/outline';
 import CategoryLayout from 'src/layouts/CategoryLayout';
 import { page } from 'src/constants/routes/app';
 import { useAuthedUser } from 'src/contexts/UserContext';
+import { AppleIcon, GoogleIcon } from 'src/icons/social';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BarChartIcon, FlameIcon, UserIcon, WaterIcon } from 'src/icons/solid';
 
 const Profile = () => {
-	const router = useRouter();
 	const { user } = useAuthedUser();
 
-	const onPressSettings = () => {
-		router.push(page.home.settings.settings);
-	};
+	const image = useMemo(() => require('assets/gradients/gradient-5.jpg'), []);
 
 	return (
-		<>
-			<Stack.Screen
-				options={{
-					animation: 'slide_from_bottom',
-				}}
-			/>
-			<TitleLayout
-				title='Profile'
-				rightIcon={
-					<Pressable onPress={onPressSettings}>
-						<CogIcon
-							svgClassName='w-6 h-6 text-white'
-							strokeWidth={2}
-						/>
-					</Pressable>
-				}
-				scrollable
-			>
+		<ImageBackground
+			source={image}
+		>
+			<SafeAreaView className='h-full w-full'>
 				<View className='flex-col px-4 py-3'>
 					<CategoryLayout>
 						<View className='flex-row gap-x-6'>
@@ -80,55 +65,75 @@ const Profile = () => {
 							</View>
 						</View>
 					</CategoryLayout>
+
+					{user.externalAccounts.length > 0 && (
+						<View className='mt-6'>
+							<CategoryLayout category='SOCIALS'>
+								<View className='flex-row items-center'>
+									{user.externalAccounts.map((account, idx) => (
+										<>
+											{account.provider === 'apple' && <AppleIcon key={idx} svgClassName='mx-2 w-8 h-8 text-white' />}
+											{account.provider === 'google' && <GoogleIcon key={idx} svgClassName='mx-2 w-8 h-8' />}
+										</>
+									))}
+								</View>
+							</CategoryLayout>
+						</View>
+					)}
+
 					<View className='mt-6'>
 						<CategoryLayout category='CUSTOMIZATION'>
 							<View className='flex-col divide-y divide-zinc-700 -my-3'>
 								<View>
 									<Button
 										title='Personal Details'
-										href={
-											page.home.settings.personal_details
-										}
+										href={page.home.settings.personal_details}
+										icon={<UserIcon svgClassName='w-6 h-6 text-green-400' />}
 									/>
 								</View>
 								<View>
 									<Button
 										title='Dietary Needs & Preferences'
-										href={
-											page.home.settings.food_preferences
-										}
+										href={page.home.settings.food_preferences}
 									/>
 								</View>
 								<View>
 									<Button
 										title='Adjust Macronutrients'
-										href={
-											page.home.settings.adjust_macros
-										}
+										subtitle='Carbs, Protein and Fat'
+										href={page.home.settings.adjust_macros}
+										icon={<BarChartIcon svgClassName='w-6 h-6 text-green-400' />}
 									/>
 								</View>
 								<View>
 									<Button
 										title='Adjust Calories'
-										href={
-											page.home.settings.adjust_calories
-										}
+										href={page.home.settings.adjust_calories}
+										icon={<FlameIcon svgClassName='w-6 h-6 text-green-400' />}
+									/>
+								</View>
+								<View>
+									<Button
+										title='Water Habits'
+										href={page.home.settings.water_tracker}
+										icon={<WaterIcon svgClassName='w-6 h-6 text-green-400' />}
 									/>
 								</View>
 							</View>
 						</CategoryLayout>
 					</View>
 				</View>
-			</TitleLayout>
-		</>
+			</SafeAreaView>
+		</ImageBackground>
 	);
 };
 
 const Button: React.FC<{
 	title: string;
+	subtitle?: string;
 	href: string;
 	icon?: React.ReactNode;
-}> = ({ title, href, icon }) => {
+}> = ({ title, subtitle, href, icon }) => {
 	const router = useRouter();
 
 	return (
@@ -138,9 +143,16 @@ const Button: React.FC<{
 		>
 			<View className='flex-row items-center'>
 				{icon}
-				<Text className='ml-4 text-base font-medium text-white'>
-					{title}
-				</Text>
+				<View className='flex-col ml-4'>
+					<Text className='text-base font-medium text-zinc-100'>
+						{title}
+					</Text>
+					{subtitle && (
+						<Text className='text-sm font-medium text-zinc-400'>
+							{subtitle}
+						</Text>
+					)}
+				</View>
 			</View>
 			<ChevronRightIcon
 				svgClassName='w-4 h-4 text-zinc-500'

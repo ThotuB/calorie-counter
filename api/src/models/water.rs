@@ -40,11 +40,12 @@ impl Water {
             .expect("Error loading water by user id");
     }
 
-    pub fn update_water(connection: &mut PgConnection, updated_water: Water) -> Water {
-        return diesel::update(water::table)
-            .filter(water::user_id.eq(&updated_water.user_id))
-            .filter(water::date.eq(&updated_water.date))
-            .set(&updated_water)
+    pub fn update_water(connection: &mut PgConnection, updated_water: NewWater) -> Water {
+        return diesel::insert_into(water::table)
+            .values(&updated_water)
+            .on_conflict((water::user_id, water::date))
+            .do_update()
+            .set(water::amount.eq(updated_water.amount))
             .get_result(connection)
             .expect("Error updating water");
     }

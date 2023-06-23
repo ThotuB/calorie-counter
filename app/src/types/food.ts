@@ -3,13 +3,14 @@ export interface Food {
     name: string;
     brand: string;
     calories: number;
-    servingSize: string;
-    alternateServingSize: string;
+    serving_size: number;
+    serving_size_unit: string;
+    alternative_serving_size: string;
     verified: boolean;
     nutrients: Nutrients;
     vitamins: Vitamins;
     minerals: Minerals;
-    aminos: Aminos;
+    amino_acids: Aminos;
 }
 
 export interface Nutrients {
@@ -18,12 +19,11 @@ export interface Nutrients {
     sugar?: number;
     protein: number;
     fat: number;
-    saturatedFat?: number;
-    unsaturatedFat?: number;
+    saturated_fat?: number;
+    unsaturated_fat?: number;
 };
 
 export interface Vitamins {
-    show: boolean;
     A?: number;
     B1?: number;
     B2?: number;
@@ -40,7 +40,6 @@ export interface Vitamins {
 };
 
 export interface Minerals {
-    show: boolean;
     calcium?: number;
     iron?: number;
     magnesium?: number;
@@ -57,7 +56,6 @@ export interface Minerals {
 };
 
 export interface Aminos {
-    show: boolean;
     alanine?: number;
     arginine?: number;
     aspartate?: number;
