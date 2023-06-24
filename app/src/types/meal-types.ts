@@ -1,4 +1,5 @@
 import { Food } from "./food";
+import { Source } from "./source_enum";
 
 export type MealType = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 export type PortionSize = 'serving' | 'gram' | 'ml';
@@ -8,9 +9,9 @@ export interface Meal {
     user_id: string;
     food: Food;
     meal_type: MealType
+    date: string;
     portions: number;
     portion_size: PortionSize;
-    date: string;
 }
 
 export interface CreateMeal {
@@ -20,4 +21,5 @@ export interface CreateMeal {
     date: string;
     portions: number;
     portion_size: PortionSize;
+    source: Source
 }

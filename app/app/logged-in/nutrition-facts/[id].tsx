@@ -24,6 +24,7 @@ import { page } from 'src/constants/routes/app';
 import FoodRatingPlaceholder from 'src/components/food/nutrition/FoodRatingPlaceholder';
 import NutritionalFactsPlaceholder from 'src/components/food/nutrition/NutritionalFactsPlaceholder';
 import { useDate } from 'src/contexts/DateContext';
+import { AddRemoveFavoriteFoodDto } from 'src/types/favorite-food';
 
 const NutritionFacts: React.FC = () => {
 	const router = useRouter();
@@ -44,16 +45,28 @@ const NutritionFacts: React.FC = () => {
 		getFoodById(id as string),
 	);
 
-	useQuery(['favorite-food', id], () => isFavoriteFood(user.id, fid), {
+	useQuery(['favorite-food', id], () => isFavoriteFood({
+		user_id: user.id,
+		food_id: fid,
+		source: 'usda'
+	}), {
 		onSuccess: (data) => {
 			setIsFavorite(data);
 		}
 	})
 
 	// mutations
-	const { mutate: addFavFoodMutation, isLoading: isAddFavFoodLoading } = useMutation(() => addFavoriteFood(user.id, fid))
+	const { mutate: addFavFoodMutation, isLoading: isAddFavFoodLoading } = useMutation(() => addFavoriteFood({
+		user_id: user.id,
+		food_id: fid,
+		source: 'usda'
+	}))
 
-	const { mutate: removeFavFoodMutation, isLoading: isRemoveFavFoodLoading } = useMutation(() => removeFavoriteFood(user.id, fid))
+	const { mutate: removeFavFoodMutation, isLoading: isRemoveFavFoodLoading } = useMutation(() => removeFavoriteFood({
+		user_id: user.id,
+		food_id: fid,
+		source: 'usda'
+	}))
 
 	const { mutate: addMealMutation, isLoading: isAddMealLoading } = useMutation((newMeal: CreateMeal) => addMeal(newMeal), {
 		onSuccess: () => {
@@ -64,6 +77,7 @@ const NutritionFacts: React.FC = () => {
 
 	const onPressHeart = () => {
 		setIsFavorite(!isFavorite);
+
 		isFavorite ?
 			removeFavFoodMutation() :
 			addFavFoodMutation();
@@ -90,6 +104,7 @@ const NutritionFacts: React.FC = () => {
 			portions: portions,
 			portion_size: portionSize,
 			date: dateYMD,
+			source: 'usda'
 		})
 	}
 

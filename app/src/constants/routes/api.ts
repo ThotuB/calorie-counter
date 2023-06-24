@@ -3,7 +3,7 @@ import { routeTo } from "src/utils/routes";
 const address = '172.22.118.161'
 const port = '6000'
 const domain1 = `https://${address}:${port}/api` as const
-const ngrok = 'https://eec5-84-232-150-105.eu.ngrok.io'
+const ngrok = 'https://83a3-84-232-150-105.eu.ngrok.io'
 const domain2 = `${ngrok}/api` as const
 
 const domain = domain2

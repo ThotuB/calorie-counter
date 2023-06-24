@@ -4,11 +4,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     constants::usda_ids::{get_usda_ids, UsdaMicronutrient},
+    models::food::{Food, ServingSizeUnit},
     services::usda_food::{USDABranndedFoodItemDto, USDAFoodNutrientDto},
 };
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct Food {
+pub struct FoodDto {
     pub id: i32,
     pub name: String,
     pub brand: String,
@@ -17,17 +18,17 @@ pub struct Food {
     pub serving_size_unit: String,
     pub alternative_serving_size: Option<String>,
     pub verified: bool,
-    pub nutrients: Nutrients,
+    pub nutrients: NutrientsDto,
     pub vitamins: HashMap<String, f32>,
     pub minerals: HashMap<String, f32>,
     pub amino_acids: HashMap<String, f32>,
 }
 
-impl Food {
-    pub fn from_usda_food(food: USDABranndedFoodItemDto) -> Food {
+impl From<USDABranndedFoodItemDto> for FoodDto {
+    fn from(food: USDABranndedFoodItemDto) -> FoodDto {
         let nutrients = food.food_nutrients;
 
-        Food {
+        FoodDto {
             id: food.fdc_id,
             name: food.description,
             brand: food
@@ -39,7 +40,7 @@ impl Food {
             serving_size_unit: food.serving_size_unit.unwrap_or("g".to_string()),
             alternative_serving_size: Some(String::from("1 serving")),
             verified: true,
-            nutrients: Nutrients::from_usda(&nutrients),
+            nutrients: NutrientsDto::from_usda(&nutrients),
             vitamins: get_micronutrients(&nutrients, get_usda_ids(UsdaMicronutrient::Vitamin)),
             minerals: get_micronutrients(&nutrients, get_usda_ids(UsdaMicronutrient::Mineral)),
             amino_acids: get_micronutrients(&nutrients, get_usda_ids(UsdaMicronutrient::AminoAcid)),
@@ -47,8 +48,30 @@ impl Food {
     }
 }
 
+impl From<Food> for FoodDto {
+    fn from(food: Food) -> FoodDto {
+        FoodDto {
+            id: food.id,
+            nutrients: NutrientsDto::from(&food),
+            name: food.name,
+            brand: food.brand.unwrap_or("".to_string()),
+            calories: food.calories,
+            serving_size: food.serving_size,
+            serving_size_unit: match food.serving_size_unit {
+                ServingSizeUnit::G => "g".to_string(),
+                ServingSizeUnit::Ml => "ml".to_string(),
+            },
+            alternative_serving_size: Some("1 serving".to_string()),
+            verified: false,
+            vitamins: HashMap::new(),
+            minerals: HashMap::new(),
+            amino_acids: HashMap::new(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone)]
-pub struct Nutrients {
+pub struct NutrientsDto {
     pub carbs: f32,
     pub fiber: Option<f32>,
     pub sugar: Option<f32>,
@@ -58,9 +81,9 @@ pub struct Nutrients {
     pub unsaturated_fat: Option<f32>,
 }
 
-impl Nutrients {
-    pub fn empty() -> Nutrients {
-        Nutrients {
+impl NutrientsDto {
+    pub fn empty() -> NutrientsDto {
+        NutrientsDto {
             protein: 0.0,
             carbs: 0.0,
             sugar: None,
@@ -71,8 +94,8 @@ impl Nutrients {
         }
     }
 
-    pub fn from_usda(nutrients: &Vec<USDAFoodNutrientDto>) -> Nutrients {
-        Nutrients {
+    pub fn from_usda(nutrients: &Vec<USDAFoodNutrientDto>) -> NutrientsDto {
+        NutrientsDto {
             carbs: get_micronutrient_value(&nutrients, 1005).unwrap_or(0.0),
             fiber: get_micronutrient_value(&nutrients, 1079),
             sugar: get_micronutrient_value(&nutrients, 2000),
@@ -80,6 +103,20 @@ impl Nutrients {
             fat: get_micronutrient_value(&nutrients, 1004).unwrap_or(0.0),
             saturated_fat: get_micronutrient_value(&nutrients, 1258),
             unsaturated_fat: get_micronutrient_value(&nutrients, 1257),
+        }
+    }
+}
+
+impl From<&Food> for NutrientsDto {
+    fn from(food: &Food) -> NutrientsDto {
+        NutrientsDto {
+            protein: food.protein,
+            carbs: food.carbs,
+            sugar: None,
+            fiber: None,
+            fat: food.fat,
+            saturated_fat: None,
+            unsaturated_fat: None,
         }
     }
 }

@@ -1,6 +1,9 @@
 use serde::Serialize;
 
-use crate::models::meal::{MealAverage, MealAveragePerMealType, MealGroup, MealType};
+use crate::{
+    models::meal::MealType,
+    repos::meal_repo::{MealAveragePerMealType, MealGroup},
+};
 
 #[derive(Debug, Serialize)]
 pub struct ProgressDto {

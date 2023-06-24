@@ -12,6 +12,7 @@ mod db;
 mod dto;
 mod impls;
 mod models;
+mod repos;
 mod schema;
 mod services;
 
@@ -35,6 +36,11 @@ fn rocket() -> _ {
             account::post_account,
             settings::get_settings,
             settings::adjust_macros,
+            food::get_food,
+            food::get_foods_by_user,
+            food::get_food_by_barcode,
+            food::post_food,
+            food::delete_food,
         ],
     )
 }

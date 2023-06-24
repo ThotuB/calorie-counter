@@ -14,6 +14,14 @@ pub mod sql_types {
     pub struct PortionSize;
 
     #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "serving_size_unit"))]
+    pub struct ServingSizeUnit;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "source"))]
+    pub struct Source;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "system"))]
     pub struct System;
 
@@ -27,10 +35,37 @@ pub mod sql_types {
 }
 
 diesel::table! {
-    favorite_foods (user_id, food_id) {
+    use diesel::sql_types::*;
+    use super::sql_types::Source;
+
+    favorite_foods (user_id, food_id, source) {
         #[max_length = 32]
         user_id -> Varchar,
         food_id -> Int4,
+        source -> Source,
+    }
+}
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::ServingSizeUnit;
+
+    food (id) {
+        id -> Int4,
+        #[max_length = 32]
+        user_id -> Bpchar,
+        #[max_length = 100]
+        name -> Varchar,
+        #[max_length = 100]
+        brand -> Nullable<Varchar>,
+        barcode -> Nullable<Int8>,
+        calories -> Float4,
+        carbs -> Float4,
+        protein -> Float4,
+        fat -> Float4,
+        serving_size -> Float4,
+        serving_size_unit -> ServingSizeUnit,
+        ingredients -> Nullable<Text>,
     }
 }
 
@@ -52,6 +87,7 @@ diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::MealType;
     use super::sql_types::PortionSize;
+    use super::sql_types::Source;
 
     meals (id) {
         id -> Int4,
@@ -66,6 +102,7 @@ diesel::table! {
         carbs -> Float4,
         protein -> Float4,
         fat -> Float4,
+        source -> Source,
     }
 }
 
@@ -101,6 +138,7 @@ diesel::table! {
 
 diesel::allow_tables_to_appear_in_same_query!(
     favorite_foods,
+    food,
     macro_goals,
     meals,
     settings,

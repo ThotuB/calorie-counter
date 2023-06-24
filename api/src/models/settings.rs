@@ -1,4 +1,3 @@
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel_derive_enum::DbEnum;
 use serde::{Deserialize, Serialize};
@@ -53,7 +52,7 @@ pub struct Settings {
 }
 
 #[derive(Insertable, Deserialize)]
-#[diesel(table_name = settings)]
+#[table_name = "settings"]
 pub struct NewSettings {
     pub user_id: String,
     pub weight_goal: WeightGoal,
@@ -62,20 +61,4 @@ pub struct NewSettings {
     pub height: i32,
     pub weight: i32,
     pub system: System,
-}
-
-impl Settings {
-    pub fn get_settings(connection: &mut PgConnection, uid: &String) -> Option<Settings> {
-        return settings::table
-            .filter(settings::user_id.eq(uid))
-            .first::<Settings>(connection)
-            .ok();
-    }
-
-    pub fn create_settings(connection: &mut PgConnection, new_settings: &NewSettings) -> Settings {
-        return diesel::insert_into(settings::table)
-            .values(new_settings)
-            .get_result(connection)
-            .expect("Error creating settings");
-    }
 }

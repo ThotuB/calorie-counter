@@ -2,7 +2,7 @@ use serde::Serialize;
 
 use crate::models::{macro_goal::MacroGoal, meal::MealType};
 
-use super::{food_dtos::Food, meal_dtos::MealDto};
+use super::{food_dtos::FoodDto, meal_dtos::MealDto};
 
 #[derive(Serialize, Clone)]
 pub struct DailyDto {
@@ -74,7 +74,7 @@ impl DailyMealDto {
         }
     }
 
-    pub fn push(&mut self, food: Food) {
+    pub fn push(&mut self, food: FoodDto) {
         self.calories += food.calories as i32;
         self.foods.push(DailyFoodDto {
             name: food.name,

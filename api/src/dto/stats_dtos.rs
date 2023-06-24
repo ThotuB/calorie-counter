@@ -4,7 +4,7 @@ use serde::Serialize;
 
 use crate::models::macro_goal::MacroGoal;
 
-use super::food_dtos::{Food, Nutrients};
+use super::food_dtos::{FoodDto, NutrientsDto};
 
 #[derive(Serialize)]
 pub struct StatsDto {
@@ -17,7 +17,7 @@ pub struct StatsDto {
     pub goal_percentages: StatsMacroPercentagesDto,
     pub intake_percentages: StatsMacroPercentagesDto,
     pub calories_last_week: [i32; 7],
-    pub nutrients: Nutrients,
+    pub nutrients: NutrientsDto,
     pub vitamins: HashMap<String, f32>,
     pub minerals: HashMap<String, f32>,
     pub amino_acids: HashMap<String, f32>,
@@ -39,7 +39,7 @@ impl StatsDto {
             ),
             intake_percentages: StatsMacroPercentagesDto::empty(),
             calories_last_week: clw,
-            nutrients: Nutrients::empty(),
+            nutrients: NutrientsDto::empty(),
             vitamins: HashMap::new(),
             minerals: HashMap::new(),
             amino_acids: HashMap::new(),
@@ -49,7 +49,7 @@ impl StatsDto {
     pub fn new(
         date: chrono::NaiveDate,
         macro_goal: &MacroGoal,
-        foods: Vec<Food>,
+        foods: Vec<FoodDto>,
         clw: [i32; 7],
     ) -> StatsDto {
         let mut stats = StatsDto::empty(date, macro_goal, clw);

@@ -1,14 +1,17 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::meal::{Meal, MealType, NewMeal, PortionSize};
+use crate::models::{
+    meal::{Meal, MealType, NewMeal, PortionSize},
+    source_enum::Source,
+};
 
-use super::food_dtos::Food;
+use super::food_dtos::FoodDto;
 
 #[derive(Serialize)]
 pub struct MealDto {
     pub id: i32,
     pub user_id: String,
-    pub food: Food,
+    pub food: FoodDto,
     pub meal_type: MealType,
     pub date: chrono::NaiveDate,
     pub portions: f32,
@@ -16,7 +19,7 @@ pub struct MealDto {
 }
 
 impl MealDto {
-    pub fn from_meal(meal: Meal, food: Food) -> MealDto {
+    pub fn from_meal(meal: Meal, food: FoodDto) -> MealDto {
         MealDto {
             id: meal.id,
             user_id: meal.user_id,
@@ -32,11 +35,12 @@ impl MealDto {
 #[derive(Deserialize)]
 pub struct CreateMealDto {
     pub user_id: String,
-    pub food: Food,
+    pub food: FoodDto,
     pub meal_type: MealType,
     pub date: chrono::NaiveDate,
     pub portions: f32,
     pub portion_size: PortionSize,
+    pub source: Source,
 }
 
 impl Into<NewMeal> for CreateMealDto {
@@ -52,6 +56,7 @@ impl Into<NewMeal> for CreateMealDto {
             protein: self.food.nutrients.protein,
             carbs: self.food.nutrients.carbs,
             fat: self.food.nutrients.fat,
+            source: self.source,
         }
     }
 }

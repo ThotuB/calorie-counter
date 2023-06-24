@@ -1,14 +1,14 @@
 use reqwest::Error;
 use serde::Deserialize;
 
-use crate::dto::food_dtos::Food;
+use crate::dto::food_dtos::FoodDto;
 
 static USDA_DOMAIN: &str = "https://api.nal.usda.gov/fdc/v1";
 static USDA_API_KEY: &str = "g8hkV8fS6A17dTaS0DEk464LisJCu8AdN2gKIU2C";
 
 enum Routes {
     Search,
-    Food,
+    FoodDto,
     Foods,
 }
 
@@ -16,7 +16,7 @@ impl Routes {
     fn to_string(&self) -> String {
         match self {
             Routes::Search => format!("{}/foods/search", USDA_DOMAIN),
-            Routes::Food => format!("{}/food", USDA_DOMAIN),
+            Routes::FoodDto => format!("{}/food", USDA_DOMAIN),
             Routes::Foods => format!("{}/foods", USDA_DOMAIN),
         }
     }
@@ -74,22 +74,22 @@ pub async fn get_usda_food_by_search(search: &str, page: i32) -> Result<(), Erro
     return Ok(());
 }
 
-pub async fn get_usda_food_by_id(id: &str) -> Result<Food, Error> {
+pub async fn get_usda_food_by_id(id: &str) -> Result<FoodDto, Error> {
     let client = reqwest::Client::new();
     let res = client
-        .get(&format!("{}/{}", Routes::Food.to_string(), id))
+        .get(&format!("{}/{}", Routes::FoodDto.to_string(), id))
         .query(&[("api_key", USDA_API_KEY)])
         .send()
         .await?
         .json::<USDABranndedFoodItemDto>()
         .await?;
 
-    let res = Food::from_usda_food(res);
+    let res = FoodDto::from(res);
 
     return Ok(res);
 }
 
-pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<Food>, Error> {
+pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<FoodDto>, Error> {
     let ids = &ids
         .iter()
         .map(|id| id.to_string())
@@ -107,7 +107,7 @@ pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<Food>, Error> {
 
     let res = res
         .iter()
-        .map(|food| Food::from_usda_food(food.to_owned()))
+        .map(|food| FoodDto::from(food.to_owned()))
         .collect::<Vec<_>>();
 
     return Ok(res);

@@ -1,10 +1,10 @@
 use crate::{
     db,
     dto::meal_dtos::{CreateMealDto, MealDto},
-    models::meal::Meal,
+    repos::meal_repo,
     services::usda_food::get_usda_foods_by_ids,
 };
-use rocket::serde::json::Json;
+use rocket::{http::Status, serde::json::Json};
 
 #[get("/meals?<user_id>&<day>")]
 pub async fn get_meals(user_id: String, day: String) -> Json<Vec<MealDto>> {
@@ -12,7 +12,7 @@ pub async fn get_meals(user_id: String, day: String) -> Json<Vec<MealDto>> {
 
     let day = chrono::NaiveDate::parse_from_str(&day, "%Y-%m-%d").unwrap();
 
-    let meals = Meal::get_meals_by_user_id_and_date(connection, &user_id, day);
+    let meals = meal_repo::get_meals_by_user_id_and_date(connection, &user_id, day);
 
     if meals.is_empty() {
         return Json(vec![]);
@@ -29,16 +29,18 @@ pub async fn get_meals(user_id: String, day: String) -> Json<Vec<MealDto>> {
 }
 
 #[post("/meals", format = "json", data = "<meal>")]
-pub fn post_meal(meal: Json<CreateMealDto>) -> Json<Meal> {
+pub fn post_meal(meal: Json<CreateMealDto>) -> Status {
     let connection = &mut db::establish_connection();
     let meal = meal.into_inner();
 
-    return Json(Meal::create_meal(connection, meal.into()));
+    meal_repo::create_meal(connection, meal.into());
+
+    return Status::Created;
 }
 
 #[delete("/meals/<meal_id>")]
 pub fn delete_meal(meal_id: i32) -> Json<bool> {
     let connection = &mut db::establish_connection();
 
-    return Json(Meal::remove_meal(connection, meal_id));
+    return Json(meal_repo::remove_meal(connection, meal_id));
 }

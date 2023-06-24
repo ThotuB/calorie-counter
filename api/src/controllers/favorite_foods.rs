@@ -1,17 +1,17 @@
-use rocket::serde::json::Json;
+use rocket::{http::Status, serde::json::Json};
 
 use crate::{
     db,
-    dto::food_dtos::Food,
-    models::favorite_food::{FavoriteFood, NewFavoriteFood},
+    dto::{favorite_food_dtos::CreateFavoriteFoodDto, food_dtos::FoodDto},
+    repos::favorite_food_repo,
     services::usda_food::get_usda_foods_by_ids,
 };
 
 #[get("/favorite-foods?<user_id>")]
-pub async fn get_favorite_foods(user_id: String) -> Json<Vec<Food>> {
+pub async fn get_favorite_foods(user_id: String) -> Json<Vec<FoodDto>> {
     let connection = &mut db::establish_connection();
 
-    let ids = FavoriteFood::get_fav_foods_by_user_id(connection, &user_id);
+    let ids = favorite_food_repo::get_fav_foods_by_user_id(connection, &user_id);
 
     if ids.is_empty() {
         return Json(vec![]);
@@ -26,23 +26,26 @@ pub async fn get_favorite_foods(user_id: String) -> Json<Vec<Food>> {
 pub fn get_favorite_food(user_id: String, food_id: i32) -> Json<bool> {
     let connection = &mut db::establish_connection();
 
-    let result = FavoriteFood::is_fav_food(connection, &user_id, food_id);
+    let result = favorite_food_repo::is_fav_food(connection, &user_id, food_id);
 
     return Json(result);
 }
 
 #[post("/favorite-foods", format = "json", data = "<food>")]
-pub fn post_favorite_food(food: Json<NewFavoriteFood>) -> Json<FavoriteFood> {
+pub fn post_favorite_food(food: Json<CreateFavoriteFoodDto>) -> Status {
     let connection = &mut db::establish_connection();
+    let food = food.into_inner();
 
-    return Json(FavoriteFood::create_fav_food(connection, food.into_inner()));
+    favorite_food_repo::create_fav_food(connection, food.into());
+
+    return Status::Ok;
 }
 
 #[delete("/favorite-foods", format = "json", data = "<food>")]
-pub fn delete_favorite_food(food: Json<NewFavoriteFood>) -> Json<bool> {
+pub fn delete_favorite_food(food: Json<CreateFavoriteFoodDto>) -> Json<bool> {
     let connection = &mut db::establish_connection();
 
-    return Json(FavoriteFood::remove_fav_food(
+    return Json(favorite_food_repo::remove_fav_food(
         connection,
         &food.user_id,
         food.food_id,
