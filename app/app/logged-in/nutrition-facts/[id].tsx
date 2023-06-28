@@ -37,7 +37,7 @@ const NutritionFacts: React.FC = () => {
 
 	const [isFavorite, setIsFavorite] = useState(false);
 	const [nrOfServings, setNrOfServings] = useState('1');
-	const [servingSize, setServingSize] = useState<'grams' | '100 grams' | 'serving'>(`grams`);
+	const [servingSize, setServingSize] = useState<'grams' | '100 grams' | 'serving'>(`serving`);
 	const [modalVisible, setModalVisible] = useState(false);
 
 	// queries

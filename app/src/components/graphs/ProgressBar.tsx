@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import Animated, { useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export const HorizontalProgressBar: React.FC<{
     barClassName: string;
@@ -12,7 +12,8 @@ export const HorizontalProgressBar: React.FC<{
 
     useEffect(() => {
         progressValue.value = withTiming(progress, {
-            duration: 800
+            duration: 800,
+            easing: Easing.bezier(0.5, 0, 0.5, 1)
         });
     }, [progress]);
 

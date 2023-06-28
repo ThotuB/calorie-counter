@@ -7,7 +7,7 @@ import { page } from 'src/constants/routes/app';
 import { useAuthedUser } from 'src/contexts/UserContext';
 import { AppleIcon, GoogleIcon } from 'src/icons/social';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BarChartIcon, FlameIcon, UserIcon, WaterIcon } from 'src/icons/solid';
+import { BarChartIcon, FlameIcon, RoomServiceIcon, UserIcon, WaterIcon } from 'src/icons/solid';
 
 const Profile = () => {
 	const { user } = useAuthedUser();
@@ -57,10 +57,14 @@ const Profile = () => {
 							</View>
 							<View className='flex-row justify-between'>
 								<Text className='font-medium text-white'>
-									IDK
+									Member Since
 								</Text>
 								<Text className='font-semibold text-white'>
-									add something here
+									{user.createdAt?.toLocaleDateString('en-US', {
+										weekday: 'long',
+										month: 'short',
+										day: 'numeric',
+									})}
 								</Text>
 							</View>
 						</View>
@@ -95,6 +99,7 @@ const Profile = () => {
 									<Button
 										title='Dietary Needs & Preferences'
 										href={page.home.settings.food_preferences}
+										icon={<RoomServiceIcon svgClassName='w-6 h-6 text-green-400' />}
 									/>
 								</View>
 								<View>
@@ -108,6 +113,7 @@ const Profile = () => {
 								<View>
 									<Button
 										title='Adjust Calories'
+										subtitle='2500 kcal / day'
 										href={page.home.settings.adjust_calories}
 										icon={<FlameIcon svgClassName='w-6 h-6 text-green-400' />}
 									/>

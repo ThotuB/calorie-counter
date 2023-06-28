@@ -16,7 +16,7 @@ const NextButton: React.FC<{
 
 	return (
 		<Pressable
-			className={`w-full py-4 ${isPressable ? 'bg-purple-400' : 'bg-zinc-700'
+			className={`w-full py-4 ${isPressable ? 'bg-green-400' : 'bg-zinc-700'
 				} mb-6 flex flex-row justify-center rounded-md`}
 			onPress={onPress}
 			disabled={!isPressable}

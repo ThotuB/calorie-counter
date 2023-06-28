@@ -18,7 +18,6 @@ const Layout = () => {
                 <Stack
                     screenOptions={{
                         headerShown: false,
-                        orientation: 'portrait',
                         animation: 'fade',
                     }}
                 />

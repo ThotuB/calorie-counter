@@ -2,6 +2,7 @@ import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import CircularProgress from '../graphs/CircularProgress';
 import Loading from '../util/Loading';
+import { useSteps } from 'src/contexts/StepContext';
 
 const BigDaily: React.FC<{
     eaten?: number,
@@ -9,6 +10,7 @@ const BigDaily: React.FC<{
     goal?: number,
     isLoading: boolean
 }> = ({ eaten = 0, burned = 0, goal = 0, isLoading }) => {
+    const { caloriesBurned } = useSteps();
 
     return (
         <View className='flex-row items-center justify-evenly p-4'>
@@ -53,7 +55,7 @@ const BigDaily: React.FC<{
             </View>
 
             <View className='flex-col w-1/4 items-center'>
-                <Text className='text-3xl text-white'>{burned}</Text>
+                <Text className='text-3xl text-white'>{caloriesBurned.toFixed(0)}</Text>
                 <Text className='mt-1 text-xs text-white'>BURNED</Text>
             </View>
         </View>

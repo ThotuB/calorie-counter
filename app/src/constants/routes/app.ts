@@ -1,8 +1,7 @@
-import { routeTo } from "src/utils/routes";
-
 const routes = {
     auth: '/auth',
-    account_setup: '/auth/account-setup',
+    sign_up: '/auth/sign-up',
+    account_setup: '/auth/sign-up/account-setup',
     home: '/logged-in/home',
     food: '/logged-in/food',
     settings: '/logged-in/settings',
@@ -11,44 +10,46 @@ const routes = {
 
 export const page = {
     auth: {
-        accout_setup: {
-            gender_selection: routeTo(routes.account_setup, '/GenderSelection'),
-            height_selection: routeTo(routes.account_setup, '/HeightSelection'),
-            weight_selection: routeTo(routes.account_setup, '/WeightSelection'),
-            age_selection: routeTo(routes.account_setup, '/AgeSelection'),
-            weight_goal: routeTo(routes.account_setup, '/WeightGoal'),
-            sign_up: routeTo(routes.account_setup, '/SignUp'),
-            email_sign_up: routeTo(routes.account_setup, '/EmailSignUp'),
+        sign_up: {
+            account_setup: {
+                weight_goal: `${routes.account_setup}/WeightGoal`,
+                gender_selection: `${routes.account_setup}/GenderSelection`,
+                height_selection: `${routes.account_setup}/HeightSelection`,
+                weight_selection: `${routes.account_setup}/WeightSelection`,
+                age_selection: `${routes.account_setup}/AgeSelection`,
+                sign_up: `${routes.account_setup}/SignUp`,
+            },
+            email_sign_up: `${routes.sign_up}/EmailSignUp`,
         },
-        authentication: routeTo(routes.auth, '/Authentication'),
-        email_sign_in: routeTo(routes.auth, '/EmailSignIn'),
+        authentication: `${routes.auth}/Authentication`,
+        email_sign_in: `${routes.auth}/EmailSignIn`,
     },
     home: {
         settings: {
-            settings: routeTo(routes.settings, '/Settings'),
-            personal_details: routeTo(routes.settings, '/PersonalDetails'),
-            account_settings: routeTo(routes.settings, '/AccountSettings'),
-            invite_friends: routeTo(routes.settings, '/InviteFriends'),
-            diary_settings: routeTo(routes.settings, '/DiarySettings'),
-            water_tracker: routeTo(routes.settings, '/WaterTracker'),
-            weekly_weight_update: routeTo(routes.settings, '/WeeklyWeightUpdate'),
-            fruit_tracker: routeTo(routes.settings, '/FruitTracker'),
-            veges_tracker: routeTo(routes.settings, '/VegesTracker'),
-            automatic_tracking: routeTo(routes.settings, '/AutomaticTracking'),
-            food_preferences: routeTo(routes.settings, '/FoodPreferences'),
-            adjust_macros: routeTo(routes.settings, '/AdjustMacros'),
-            adjust_calories: routeTo(routes.settings, '/AdjustCalories'),
+            settings: `${routes.settings}/Settings`,
+            personal_details: `${routes.settings}/PersonalDetails`,
+            account_settings: `${routes.settings}/AccountSettings`,
+            invite_friends: `${routes.settings}/InviteFriends`,
+            diary_settings: `${routes.settings}/DiarySettings`,
+            water_tracker: `${routes.settings}/WaterTracker`,
+            weekly_weight_update: `${routes.settings}/WeeklyWeightUpdate`,
+            fruit_tracker: `${routes.settings}/FruitTracker`,
+            veges_tracker: `${routes.settings}/VegesTracker`,
+            automatic_tracking: `${routes.settings}/AutomaticTracking`,
+            food_preferences: `${routes.settings}/FoodPreferences`,
+            adjust_macros: `${routes.settings}/AdjustMacros`,
+            adjust_calories: `${routes.settings}/AdjustCalories`,
         },
-        diary: routeTo(routes.home, '/Diary'),
-        profile: routeTo(routes.home, '/Profile'),
-        stats: routeTo(routes.home, '/Stats'),
-        progress: routeTo(routes.home, '/Progress'),
+        diary: `${routes.home}/Diary`,
+        profile: `${routes.home}/Profile`,
+        stats: `${routes.home}/Stats`,
+        progress: `${routes.home}/Progress`,
     },
     food: {
-        search_food: routeTo(routes.food, '/SearchFood'),
-        scan_food: routeTo(routes.food, '/ScanFood'),
+        search_food: `${routes.food}/SearchFood`,
+        scan_food: `${routes.food}/ScanFood`,
     },
     nutrition_facts: {
-        id: routeTo(routes.nutrition_facts, '/'),
+        id: `${routes.nutrition_facts}/`,
     }
 } as const;

@@ -29,7 +29,7 @@ const AddModal: React.FC<{
     const handlePushSearch = (mealType: MealType) => {
         close()
         router.push({
-            pathname: page.home.search_food,
+            pathname: page.food.search_food,
             params: {
                 mealType,
             }
@@ -54,19 +54,19 @@ const AddModal: React.FC<{
                     intensity={90}
                 >
                     <View className='w-full flex-col px-14'>
-                        <View className='w-full flex-row justify-between px-4'>
-                            <ModalItem
+                        <View className='w-full flex-row justify-center px-4'>
+                            {/* <ModalItem
                                 image={require('/assets/food/water-0.5.png')}
                                 name='Weight'
-                            />
+                            /> */}
                             <ModalItem
                                 image={require('/assets/food/water-0.5.png')}
                                 name='0.5 l'
                             />
-                            <ModalItem
+                            {/* <ModalItem
                                 image={require('/assets/food/water-0.5.png')}
                                 name='0.5 l'
-                            />
+                            /> */}
                         </View>
                         <View className='mt-4 w-full flex-row justify-between'>
                             <ModalItem

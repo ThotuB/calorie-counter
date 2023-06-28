@@ -12,7 +12,7 @@ const Water = () => {
     const { user } = useAuthedUser()
     const { dateYMD } = useDate()
 
-    const { } = useQuery(['water'], () => getWater(user.id, dateYMD), {
+    const { isLoading } = useQuery(['water'], () => getWater(user.id, dateYMD), {
         onSuccess: (data) => {
             setWater(data)
         },
@@ -32,7 +32,7 @@ const Water = () => {
         <View className='flex-col'>
             <View className='flex-row items-center justify-between w-full'>
                 <Text className='text-white text-lg font-semibold'>
-                    0 L
+                    {water * 0.5} L
                 </Text>
                 <Text className='text-white font-semibold text-xl'>
                     Water

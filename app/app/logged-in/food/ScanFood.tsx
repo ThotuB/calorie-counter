@@ -26,7 +26,7 @@ const ScanFood: React.FC<{
         return <Text>Requesting for camera permission</Text>;
     }
     if (hasPermission === false) {
-        return <Redirect href={page.home.search_food} />;
+        return <Redirect href={page.food.search_food} />;
     }
 
     return (

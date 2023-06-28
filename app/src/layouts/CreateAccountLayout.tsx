@@ -2,12 +2,21 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeftIcon } from 'src/icons/outline';
+import { useState } from 'react';
+
+const questions = [
+	"What is your weight goal?",
+	"What is your sex?",
+	"What is your age?",
+	"What is your height?",
+	"What is your weight?",
+]
 
 const CreateAccountLayout: React.FC<{
 	children: React.ReactNode;
-	question: string;
-	progress: number;
-}> = ({ children, question, progress }) => {
+}> = ({ children }) => {
+	const [progress, setProgress] = useState(6);
+
 	const router = useRouter();
 	const totalSteps = 6;
 
@@ -30,7 +39,7 @@ const CreateAccountLayout: React.FC<{
 							{Array.from({ length: progress }).map((_, i) => (
 								<View
 									key={i}
-									className=' mx-1 h-1 flex-1 rounded-full bg-purple-400'
+									className=' mx-1 h-1 flex-1 rounded-full bg-green-400'
 								/>
 							))}
 							{Array.from({ length: totalSteps - progress }).map(
@@ -45,11 +54,6 @@ const CreateAccountLayout: React.FC<{
 						<View className='ml-8 w-5' />
 					</View>
 					<View className='w-full flex-1 flex-col items-center'>
-						<View className='py-8'>
-							<Text className='text-2xl font-bold text-white'>
-								{question}
-							</Text>
-						</View>
 						{children}
 					</View>
 				</View>

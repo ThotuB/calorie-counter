@@ -75,7 +75,7 @@ const SearchFood: React.FC = () => {
 								) : (
 									<Pressable
 										onPress={() => router.push({
-											pathname: page.home.scan_food,
+											pathname: page.food.scan_food,
 											params: {
 												mealType,
 											}

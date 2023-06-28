@@ -1,12 +1,13 @@
-import { useSession, useUser } from '@clerk/clerk-expo';
-import { Redirect, useRouter } from 'expo-router';
+import { useUser } from '@clerk/clerk-expo';
+import { Redirect } from 'expo-router';
+import LoadingPage from 'src/components/auth/LoadingPage';
 import { page } from 'src/constants/routes/app';
 
 const App = () => {
 	const { isSignedIn, isLoaded } = useUser();
 
 	if (!isLoaded) {
-		return null;
+		return <LoadingPage />;
 	}
 
 	if (!isSignedIn) {

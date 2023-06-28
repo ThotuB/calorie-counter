@@ -57,7 +57,7 @@ const SearchHome: React.FC<{
 						/>
 					</View>
 				</View>
-				<View className='my-4 flex-row'>
+				<View className='my-4 h-7 flex-row'>
 					<View className='flex-1 mr-2'>
 						<Selectable
 							selected={selected === 'recent'}
@@ -80,7 +80,7 @@ const SearchHome: React.FC<{
 						/>
 					</View>
 				</View>
-				<View className='w-full'>
+				<View className='w-full flex-col'>
 					{selected === 'recent' ? (
 						<RecentFoods mealType={mealType} />
 					) : selected === 'custom' ? (

@@ -95,6 +95,12 @@ export const BarChartIcon = ({ svgClassName }: IconProps) => (
 	</SvgWrapper>
 )
 
+export const RoomServiceIcon = ({ svgClassName }: IconProps) => (
+	<SvgWrapper svgClassName={svgClassName} viewBox="0 -960 960 960">
+		<Path d="M80-200v-80h800v80H80Zm40-120v-40q0-128 78.5-226T400-710v-10q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720v10q124 26 202 124t78 226v40H120Z" />
+	</SvgWrapper>
+)
+
 export const ArrowLeftCircleIcon = ({ svgClassName }: IconProps) => (
 	<SvgWrapper svgClassName={svgClassName} viewBox="0 0 20 20">
 		<Path clipRule="evenodd" fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.25-7.25a.75.75 0 000-1.5H8.66l2.1-1.95a.75.75 0 10-1.02-1.1l-3.5 3.25a.75.75 0 000 1.1l3.5 3.25a.75.75 0 001.02-1.1l-2.1-1.95h4.59z"></Path>

@@ -9,7 +9,5 @@ export const getSettings = async (userId: string) => {
 }
 
 export const updateMacroGoal = async (macroGoal: UpdateMacroGoalDto) => {
-    const res = await axios.put(api.adjust_macros, macroGoal)
-
-    return res.data
+    await axios.put(api.adjust_macros, macroGoal)
 }

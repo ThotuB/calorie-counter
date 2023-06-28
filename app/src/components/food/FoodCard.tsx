@@ -41,6 +41,7 @@ const FoodCard: React.FC<{
 			portions: 1,
 			portion_size: 'serving',
 			date: dateYMD,
+			source: 'usda' // TODO: change this
 		})
 	}
 

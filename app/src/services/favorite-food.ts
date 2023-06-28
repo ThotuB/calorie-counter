@@ -20,10 +20,8 @@ export const addFavoriteFood = async (favMeal: AddRemoveFavoriteFoodDto) => {
 }
 
 export const removeFavoriteFood = async (favMeal: AddRemoveFavoriteFoodDto) => {
-    const res = await axios.delete(api.favorite_foods, {
-        params: {
-            ...favMeal
-        },
+    const res = await axios.delete<Record<string, never>>(api.favorite_foods, {
+        params: { ...favMeal },
     });
 
     return res.data;

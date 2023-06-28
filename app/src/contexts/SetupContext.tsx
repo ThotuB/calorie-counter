@@ -32,7 +32,7 @@ interface SetupContext {
     setWeight: (weight: WeightOptions) => void;
     age: number;
     setAge: (age: number) => void;
-    finaliseSetup: (uid: string) => Promise<Settings | undefined>;
+    finaliseSetup: (uid: string) => Promise<void>;
     createAccountWithApple: () => Promise<void>;
     createAccountWithGoogle: () => Promise<void>;
     createAccountWithEmail: (username: string, email: string, password: string) => Promise<void>;

@@ -50,7 +50,7 @@ const MealCard: React.FC<{
     // handlers
     const handleAddMeal = () => {
         router.push({
-            pathname: page.home.search_food,
+            pathname: page.food.search_food,
             params: {
                 mealType,
             }

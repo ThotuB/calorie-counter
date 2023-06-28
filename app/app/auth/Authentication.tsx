@@ -58,7 +58,7 @@ const Authentication = () => {
 						<Pressable
 							className='w-full flex-row justify-center rounded-xl bg-zinc-900 py-4'
 							onPress={() =>
-								router.push(page.auth.accout_setup.weight_goal)
+								router.push(page.auth.sign_up.account_setup.weight_goal)
 							}
 						>
 							<Text className='text-base font-bold text-white'>
