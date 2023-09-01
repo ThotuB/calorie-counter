@@ -4,7 +4,7 @@ import { AddRemoveFavoriteFoodDto } from "src/types/favorite-food";
 import { Food } from "src/types/food";
 
 export const getFavoriteFoods = async (userId: string) => {
-    const res = await axios.get<Food[]>(api.favorite_foods, {
+    const res = await axios.get<Food[]>(api.user(userId).favorite_foods, {
         params: {
             user_id: userId,
         },
@@ -14,13 +14,13 @@ export const getFavoriteFoods = async (userId: string) => {
 }
 
 export const addFavoriteFood = async (favMeal: AddRemoveFavoriteFoodDto) => {
-    const res = await axios.post(api.favorite_foods, favMeal);
+    const res = await axios.post(api.user(favMeal.user_id).favorite_foods, favMeal);
 
     return res.data;
 }
 
 export const removeFavoriteFood = async (favMeal: AddRemoveFavoriteFoodDto) => {
-    const res = await axios.delete<Record<string, never>>(api.favorite_foods, {
+    const res = await axios.delete<Record<string, never>>(api.user(favMeal.user_id).favorite_foods, {
         params: { ...favMeal },
     });
 
@@ -28,7 +28,7 @@ export const removeFavoriteFood = async (favMeal: AddRemoveFavoriteFoodDto) => {
 }
 
 export const isFavoriteFood = async (favMeal: AddRemoveFavoriteFoodDto) => {
-    const res = await axios.get<boolean>(api.is_favorite_food, {
+    const res = await axios.get<boolean>(`${api.user(favMeal.user_id).favorite_foods}/${favMeal.food_id}`, {
         params: {
             ...favMeal
         },

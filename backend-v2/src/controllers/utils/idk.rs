@@ -13,22 +13,6 @@ impl FromISO for NaiveDate {
 }
 
 #[macro_export]
-macro_rules! parse_iso {
-    ($expression:expr) => {
-        match crate::controllers::utils::idk::FromISO::from_iso($expression) {
-            Ok(date) => date,
-            Err(_) => {
-                return Ok(error_message!(
-                    tide::StatusCode::BadRequest,
-                    "invalid-date-format",
-                    "Invalid date format. Format must be ISO 8601 ( YYYY-MM-DDTHH:MM:SS.fffZ )"
-                ))
-            }
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! try_db {
     ($expression:expr, Option) => {
         match $expression {

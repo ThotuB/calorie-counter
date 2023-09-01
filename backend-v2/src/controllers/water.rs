@@ -1,15 +1,19 @@
-use serde_json::json;
+use std::sync::Arc;
+
+use sqlx::PgPool;
 use tide::{Request, Result, StatusCode};
 
-use crate::{db, error, error_message, repos::water_repo, response};
+use crate::{
+    db, dto::water_dtos::CreateWaterDto, error, error_message, repos::water_repo, response,
+};
 
 use super::utils::idk::FromISO;
 
-pub async fn get_water(req: Request<()>) -> Result {
+pub async fn get_water(req: Request<PgPool>) -> Result {
     let user_id = req.param("uid")?;
     let date = req.param("date")?;
 
-    let connection = &mut db::establish_connection().await;
+    let connection = req.state();
 
     let date = match FromISO::from_iso(date) {
         Ok(date) => date,
@@ -22,17 +26,23 @@ pub async fn get_water(req: Request<()>) -> Result {
         }
     };
 
-    match water_repo::get_by_user_and_date(connection, user_id, date).await {
+    let amount = match water_repo::get_by_user_and_date(connection, user_id, date).await {
+        Ok(amount) => amount,
         Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
-        Ok(water) => return Ok(response!(StatusCode::Ok, water)),
-    }
+    };
+
+    return Ok(response!(StatusCode::Ok, amount));
 }
 
-// pub fn put_water(water: Json<CreateWaterDto>) -> Result<(), Status> {
-//     let connection = &mut db::establish_connection();
-//     let water = water.into_inner();
-//
-//     try_db!(water_repo::update(connection, water.into()), Option);
-//
-//     return Ok(());
-// }
+pub async fn put_water(mut req: Request<PgPool>) -> Result {
+    let water = req.body_json::<CreateWaterDto>().await?;
+
+    let connection = req.state();
+
+    match water_repo::update(connection, water.into()).await {
+        Ok(_) => (),
+        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
+    }
+
+    return Ok(response!(StatusCode::Ok));
+}

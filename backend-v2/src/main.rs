@@ -1,66 +1,24 @@
-use controllers::water::get_water;
+use std::sync::Arc;
 
+use controllers::*;
+
+#[macro_use]
+extern crate tide;
+#[macro_use]
+extern crate serde;
+#[macro_use]
+extern crate sqlx;
+
+mod constants;
 mod controllers;
 mod db;
 mod dto;
 mod models;
 mod repos;
+mod services;
 
 #[async_std::main]
 async fn main() -> tide::Result<()> {
-    //     let water_routes = Router::new()
-    //         .route("/:id", get(get_water))
-    //         .route("/", post(|| async { "post water!" }));
-    //
-    //     let favorite_food_routes = Router::new()
-    //         .route("/", get(|| async { "get favorite foods!" }))
-    //         .route("/:id", get(|| async { "is favorite food!" }))
-    //         .route("/", post(|| async { "post favorite food!" }))
-    //         .route("/:id", delete(|| async { "delete favorite food!" }));
-    //
-    //     let meals_routes = Router::new()
-    //         .route("/", get(|| async { "get meals!" }))
-    //         .route("/", post(|| async { "post meals!" }))
-    //         .route("/:id", delete(|| async { "delete meals!" }));
-    //
-    //     let stats_rotues = Router::new()
-    //         .route("/daily/:date", get(|| async { "get daily stats!" }))
-    //         .route("/progress/", get(|| async { "get progress!" }));
-    //
-    //     let account_routes = Router::new().route("/", get(|| async { "get account!" }));
-    //
-    //     let settings_routes = Router::new()
-    //         .route("/", get(|| async { "get settings!" }))
-    //         .route("/adjust-macros", post(|| async { "adjust macros!" }));
-    //
-    //     let daily_routes = Router::new().route("/", get(|| async { "get daily!" }));
-    //
-    //     let user_routes = Router::new()
-    //         .nest("/water", water_routes)
-    //         .nest("/favorite-foods", favorite_food_routes)
-    //         .nest("/meals", meals_routes)
-    //         .nest("/stats", stats_rotues)
-    //         .nest("/daily", daily_routes)
-    //         .nest("/account", account_routes)
-    //         .nest("/settings", settings_routes);
-    //
-    //     let food_routes = Router::new()
-    //         .route("/:id", get(|| async { "get food!" }))
-    //         .route("/user/:id", get(|| async { "get foods by user!" }))
-    //         .route("/barcode/:id", get(|| async { "get food by barcode!" }))
-    //         .route("/", post(|| async { "post food!" }))
-    //         .route("/:id", delete(|| async { "delete food!" }));
-    //
-    //     let api = Router::new()
-    //         .nest("/user/:uid", user_routes)
-    //         .nest("/food", food_routes);
-    //
-    //     let app = Router::new().nest("/api", api);
-    //
-    //     axum::Server::bind(&"0.0.0.0:6000".parse().unwrap())
-    //         .serve(app.into_make_service())
-    //         .await
-    //         .unwrap();
     femme::start();
 
     let mut app = tide::new();
@@ -73,22 +31,91 @@ async fn main() -> tide::Result<()> {
     // .serve_file("./resources/favicon.ico")?;
 
     app.at("/api/v2").nest({
-        // let mut api = tide::with_state(db::establish_connection().await);
-        let mut api = tide::new();
+        let mut api = tide::with_state(db::create_pool().await);
+        // let mut api = tide::with_state(db::create_pool().await);
 
         api.at("/user/:uid").nest({
-            let mut user = tide::new();
+            let mut user = tide::with_state(db::create_pool().await);
 
             user.at("/water").nest({
-                let mut water = tide::new();
+                let mut water = tide::with_state(db::create_pool().await);
 
-                water.at("/:date").get(get_water);
+                water.at("/:date").get(water::get_water);
+                water.at("/").put(water::put_water);
 
                 water
             });
+            user.at("/favorite-foods").nest({
+                let mut favorite_foods = tide::with_state(db::create_pool().await);
+
+                favorite_foods
+                    .at("/")
+                    .get(favorite_foods::get_favorite_foods)
+                    .post(favorite_foods::post_favorite_food)
+                    .delete(favorite_foods::delete_favorite_food);
+                favorite_foods
+                    .at("/:id")
+                    .get(favorite_foods::is_favorite_food);
+
+                favorite_foods
+            });
+            //             user.at("/meals").nest({
+            //                 let mut meals = tide::with_state(db::create_pool().await);
+            //
+            //                 meals.at("/").get(meals::get_meals).post(meals::post_meal);
+            //                 meals.at("/:mid").delete(meals::delete_meal);
+            //
+            //                 meals
+            //             });
+            //             user.at("/stats").nest({
+            //                 let mut stats = tide::with_state(db::create_pool().await);
+            //
+            //                 stats.at("/daily/:date").get(stats::get_stats);
+            //                 stats
+            //                     .at("/progress/:date_from/:date_to")
+            //                     .get(stats::get_progress);
+            //
+            //                 stats
+            //             });
+            //             user.at("/daily").nest({
+            //                 let mut daily = tide::with_state(db::create_pool().await);
+            //
+            //                 daily.at("/:date").get(daily::get_daily);
+            //
+            //                 daily
+            //             });
+            //             user.at("/account").nest({
+            //                 let mut account = tide::with_state(db::create_pool().await);
+            //
+            //                 account.at("/").post(account::post_account);
+            //
+            //                 account
+            //             });
+            //             user.at("/settings").nest({
+            //                 let mut settings = tide::with_state(db::create_pool().await);
+            //
+            //                 settings
+            //                     .at("/")
+            //                     .get(settings::get_settings)
+            //                     .put(settings::put_settings);
+            //
+            //                 settings
+            //             });
 
             user
         });
+        //         api.at("/food").nest({
+        //             let mut food = tide::with_state(db::create_pool().await);
+        //
+        //             food.at("/:id").get(food::get_food);
+        //             food.at("/user/:uid").get(food::get_foods_by_user);
+        //             food.at("/barcode/:barcode_id")
+        //                 .get(food::get_food_by_barcode);
+        //             food.at("/").post(food::post_food);
+        //             food.at("/:id").delete(food::delete_food);
+        //
+        //             food
+        //         });
 
         api
     });

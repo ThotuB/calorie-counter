@@ -1,51 +1,124 @@
-// use rocket::{http::Status, serde::json::Json};
-//
-// use crate::{db, dto::food_dtos::FoodDto, models::food::NewFood, repos::food_repo, try_db};
-//
-// #[get("/food/<id>")]
-// pub fn get_food(id: i32) -> Result<Json<FoodDto>, Status> {
-//     let connection = &mut db::establish_connection();
-//
-//     let food = try_db!(food_repo::get_by_id(connection, id), Option);
-//
-//     return Ok(Json(FoodDto::from(food)));
-// }
-//
-// #[get("/food/user/<user_id>")]
-// pub fn get_foods_by_user(user_id: String) -> Result<Json<Vec<FoodDto>>, Status> {
-//     let connection = &mut db::establish_connection();
-//
-//     let foods = try_db!(food_repo::get_by_user(connection, &user_id));
-//
-//     return Ok(Json(foods.into_iter().map(|f| FoodDto::from(f)).collect()));
-// }
-//
-// #[get("/food/barcode/<barcode_id>")]
-// pub fn get_food_by_barcode(barcode_id: i64) -> Result<Json<FoodDto>, Status> {
-//     let connection = &mut db::establish_connection();
-//
-//     let food = try_db!(
-//         food_repo::get_food_by_barcode(connection, barcode_id),
-//         Option
-//     );
-//
-//     return Ok(Json(FoodDto::from(food)));
-// }
-//
-// #[post("/food", format = "json", data = "<new_food>")]
-// pub fn post_food(new_food: Json<NewFood>) -> Result<Json<FoodDto>, Status> {
-//     let connection = &mut db::establish_connection();
-//
-//     let new_food = try_db!(food_repo::create(connection, &new_food.into_inner()));
-//
-//     return Ok(Json(FoodDto::from(new_food)));
-// }
-//
-// #[delete("/food/<id>")]
-// pub fn delete_food(id: i32) -> Result<(), Status> {
-//     let connection = &mut db::establish_connection();
-//
-//     try_db!(food_repo::delete(connection, id));
-//
-//     return Ok(());
-// }
+use sqlx::PgPool;
+use tide::{Request, Result, StatusCode};
+
+use crate::{
+    db, dto::food_dtos::FoodDto, error, error_message, models::food::NewFood, repos::food_repo,
+    response,
+};
+
+pub async fn get_food(req: Request<&PgPool>) -> Result {
+    let food_id = req.param("id")?;
+
+    let food_id = match food_id.parse::<i32>() {
+        Ok(food_id) => food_id,
+        Err(_) => {
+            return Ok(error_message!(
+                StatusCode::BadRequest,
+                "invalid-food-id",
+                "Invalid food id."
+            ))
+        }
+    };
+
+    let connection = *req.state();
+
+    let food = match food_repo::get_by_id(connection, food_id).await {
+        Ok(Some(food)) => food,
+        Ok(None) => {
+            return Ok(error_message!(
+                StatusCode::NotFound,
+                "no-food",
+                "No food found with that id."
+            ))
+        }
+        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
+    };
+
+    return Ok(response!(StatusCode::Ok, FoodDto::from(food)));
+}
+
+pub async fn get_foods_by_user(req: Request<&PgPool>) -> Result {
+    let user_id = req.param("uid")?;
+
+    let connection = *req.state();
+
+    let foods = match food_repo::get_by_user(connection, &user_id).await {
+        Ok(foods) => foods,
+        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
+    };
+
+    let data = foods
+        .into_iter()
+        .map(|f| FoodDto::from(f))
+        .collect::<Vec<_>>();
+
+    return Ok(response!(StatusCode::Ok, data));
+}
+
+pub async fn get_food_by_barcode(req: Request<&PgPool>) -> Result {
+    let barcode_id = req.param("barcode_id")?;
+
+    let barcode_id = match barcode_id.parse::<i64>() {
+        Ok(barcode_id) => barcode_id,
+        Err(_) => {
+            return Ok(error_message!(
+                StatusCode::BadRequest,
+                "invalid-barcode",
+                "Invalid barcode."
+            ))
+        }
+    };
+
+    let connection = *req.state();
+
+    let food = match food_repo::get_food_by_barcode(connection, barcode_id).await {
+        Ok(Some(food)) => food,
+        Ok(None) => {
+            return Ok(error_message!(
+                StatusCode::NotFound,
+                "no-food",
+                "No food found with that barcode."
+            ))
+        }
+        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
+    };
+
+    return Ok(response!(StatusCode::Ok, FoodDto::from(food)));
+}
+
+pub async fn post_food(mut req: Request<&PgPool>) -> Result {
+    let food = req.body_json::<NewFood>().await?;
+
+    let connection = *req.state();
+
+    match food_repo::create(connection, &food).await {
+        Ok(food) => food,
+        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
+    };
+
+    return Ok(response!(StatusCode::Ok));
+}
+
+pub async fn delete_food(req: Request<&PgPool>) -> Result {
+    let food_id = req.param("id")?;
+
+    let food_id = match food_id.parse::<i32>() {
+        Ok(food_id) => food_id,
+        Err(_) => {
+            return Ok(error_message!(
+                StatusCode::BadRequest,
+                "invalid-food-id",
+                "Invalid food id."
+            ))
+        }
+    };
+
+    let connection = *req.state();
+
+    match food_repo::delete(connection, food_id).await {
+        Ok(_) => (),
+        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
+    };
+
+    return Ok(response!(StatusCode::Ok));
+}
