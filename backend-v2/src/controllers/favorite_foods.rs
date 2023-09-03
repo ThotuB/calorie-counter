@@ -1,38 +1,33 @@
-use std::sync::Arc;
-
 use sqlx::PgPool;
 use tide::{Request, Result, StatusCode};
 
 use crate::{
-    db,
     dto::{favorite_food_dtos::CreateFavoriteFoodDto, food_dtos::FoodDto},
-    error, error_message,
+    error_message,
     models::enums::Source,
     repos::favorite_food_repo,
     response,
     services::usda_food::get_usda_foods_by_ids,
 };
 
+use super::utils::traits::MapErrorToServerError;
+
 pub async fn get_favorite_foods(req: Request<PgPool>) -> Result {
     let user_id = req.param("uid")?;
 
     let connection = req.state();
 
-    let ids = match favorite_food_repo::get_by_user(&connection, &user_id).await {
-        Ok(ids) => ids,
-        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
-    };
+    let ids = favorite_food_repo::get_by_user(connection, user_id)
+        .await
+        .map_err_to_server_error()?;
 
     if ids.is_empty() {
         return Ok(response!(StatusCode::Ok, Vec::<FoodDto>::new()));
     }
 
-    let foods = match get_usda_foods_by_ids(ids).await {
-        Ok(foods) => foods,
-        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
-    };
+    let foods = get_usda_foods_by_ids(ids).await.map_err_to_server_error()?;
 
-    return Ok(response!(StatusCode::Ok, foods));
+    Ok(response!(StatusCode::Ok, foods))
 }
 
 pub async fn is_favorite_food(req: Request<PgPool>) -> Result {
@@ -58,12 +53,11 @@ pub async fn is_favorite_food(req: Request<PgPool>) -> Result {
 
     let connection = req.state();
 
-    match favorite_food_repo::get(connection, &user_id, food_id, &source).await {
-        Ok(_) => (),
-        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
-    };
+    favorite_food_repo::get(connection, user_id, food_id, &source)
+        .await
+        .map_err_to_server_error()?;
 
-    return Ok(response!(StatusCode::Ok));
+    Ok(response!(StatusCode::Ok))
 }
 
 pub async fn post_favorite_food(mut req: Request<PgPool>) -> Result {
@@ -71,12 +65,11 @@ pub async fn post_favorite_food(mut req: Request<PgPool>) -> Result {
 
     let connection = req.state();
 
-    match favorite_food_repo::create(connection, &food.into()).await {
-        Ok(_) => (),
-        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
-    }
+    favorite_food_repo::create(connection, &food.into())
+        .await
+        .map_err_to_server_error()?;
 
-    return Ok(response!(StatusCode::Created));
+    Ok(response!(StatusCode::Created))
 }
 
 pub async fn delete_favorite_food(mut req: Request<PgPool>) -> Result {
@@ -84,10 +77,9 @@ pub async fn delete_favorite_food(mut req: Request<PgPool>) -> Result {
 
     let connection = req.state();
 
-    match favorite_food_repo::delete(connection, &food.user_id, food.food_id, &food.source).await {
-        Ok(_) => (),
-        Err(_) => return Err(error!(StatusCode::InternalServerError, "Error")),
-    };
+    favorite_food_repo::delete(connection, &food.user_id, food.food_id, &food.source)
+        .await
+        .map_err_to_server_error()?;
 
-    return Ok(response!(StatusCode::Ok));
+    Ok(response!(StatusCode::Ok))
 }

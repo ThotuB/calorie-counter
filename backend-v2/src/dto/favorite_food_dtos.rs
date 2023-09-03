@@ -9,12 +9,12 @@ pub struct CreateFavoriteFoodDto {
     pub source: Source,
 }
 
-impl Into<FavoriteFood> for CreateFavoriteFoodDto {
-    fn into(self) -> FavoriteFood {
-        return FavoriteFood {
-            user_id: self.user_id,
-            food_id: self.food_id,
-            source: self.source,
-        };
+impl From<CreateFavoriteFoodDto> for FavoriteFood {
+    fn from(val: CreateFavoriteFoodDto) -> Self {
+        FavoriteFood {
+            user_id: val.user_id,
+            food_id: val.food_id,
+            source: val.source,
+        }
     }
 }

@@ -18,7 +18,7 @@ pub async fn get_by_id(conn: &PgPool, mid: i32) -> Result<Option<Meal>> {
     .fetch_optional(conn)
     .await?;
 
-    return Ok(meal);
+    Ok(meal)
 }
 
 pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Meal>> {
@@ -34,7 +34,7 @@ pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Meal>> {
     .fetch_all(conn)
     .await?;
 
-    return Ok(meals);
+    Ok(meals)
 }
 
 pub async fn get_food_ids_by_user_and_date(
@@ -62,7 +62,7 @@ pub async fn get_food_ids_by_user_and_date(
     .map(|row| row.food_id)
     .collect::<Vec<i32>>();
 
-    return Ok(food_ids);
+    Ok(food_ids)
 }
 
 pub async fn get_by_user_and_date(
@@ -83,7 +83,7 @@ pub async fn get_by_user_and_date(
     .fetch_all(conn)
     .await?;
 
-    return Ok(meals);
+    Ok(meals)
 }
 
 pub async fn get_total_macro_intake_per_day_between_dates_for_user(
@@ -108,7 +108,7 @@ pub async fn get_total_macro_intake_per_day_between_dates_for_user(
     .fetch_all(conn)
     .await?;
 
-    return Ok(meals);
+    Ok(meals)
 }
 
 pub async fn get_average_macro_intake_per_meal_type_between_dates_for_user(
@@ -132,7 +132,7 @@ pub async fn get_average_macro_intake_per_meal_type_between_dates_for_user(
     .fetch_all(conn)
     .await?;
 
-    return Ok(meals);
+    Ok(meals)
 }
 
 pub async fn get_averages_by_user_id_between_dates(
@@ -175,11 +175,11 @@ pub async fn get_averages_by_user_id_between_dates(
     .fetch_optional(conn)
     .await?;
 
-    return Ok(meal);
+    Ok(meal)
 }
 
 pub async fn delete(conn: &PgPool, mid: i32) -> Result<()> {
-    let result = sqlx::query!(
+    let _result = sqlx::query!(
         r#"
         DELETE FROM meals 
         WHERE id = $1
@@ -189,11 +189,11 @@ pub async fn delete(conn: &PgPool, mid: i32) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }
 
 pub async fn create(conn: &PgPool, meal: &NewMeal) -> Result<()> {
-    let meal = sqlx::query!(
+    let _meal = sqlx::query!(
         r#"
         INSERT INTO meals (user_id, food_id, meal_type, date, portions, portion_size, calories, protein, carbs, fat, source)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
@@ -213,7 +213,7 @@ pub async fn create(conn: &PgPool, meal: &NewMeal) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }
 
 pub struct MealGroup {

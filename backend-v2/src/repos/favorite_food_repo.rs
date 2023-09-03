@@ -23,7 +23,7 @@ pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<i32>> {
     .map(|f| f.food_id)
     .collect();
 
-    return Ok(ids);
+    Ok(ids)
 }
 
 // pub async fn get_fav_user_created_foods_by_user_id(conn: &PgPool, uid: &str) -> Vec<i32> {
@@ -57,7 +57,7 @@ pub async fn get_by_user_with_usda_source(conn: &PgPool, uid: &str) -> Result<Ve
     .map(|f| f.food_id)
     .collect();
 
-    return Ok(ids);
+    Ok(ids)
 }
 
 pub async fn get(
@@ -80,7 +80,7 @@ pub async fn get(
     .fetch_optional(conn)
     .await?;
 
-    return Ok(food);
+    Ok(food)
 }
 
 pub async fn delete(conn: &PgPool, uid: &str, fid: i32, source: &Source) -> Result<()> {
@@ -96,7 +96,7 @@ pub async fn delete(conn: &PgPool, uid: &str, fid: i32, source: &Source) -> Resu
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }
 
 pub async fn create(conn: &PgPool, favorite_food: &FavoriteFood) -> Result<()> {
@@ -112,18 +112,15 @@ pub async fn create(conn: &PgPool, favorite_food: &FavoriteFood) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }
 
-pub async fn create_many(
-    conn: &PgPool,
-    favorite_foods: Vec<&FavoriteFood>,
-) -> Result<()> {
+pub async fn create_many(conn: &PgPool, favorite_foods: Vec<&FavoriteFood>) -> Result<()> {
     for favorite_food in favorite_foods {
-        create(conn, &favorite_food).await?;
+        create(conn, favorite_food).await?;
     }
 
-    return Ok(());
+    Ok(())
 }
 
 // #[cfg(test)]

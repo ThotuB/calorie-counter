@@ -59,7 +59,7 @@ impl ProgressDto {
         }
     }
 
-    fn get_max_per_day(meals: &Vec<MealGroup>) -> ProgressTrackedDto {
+    fn get_max_per_day(meals: &[MealGroup]) -> ProgressTrackedDto {
         let max_calories = meals
             .iter()
             .map(|m| m.calories.unwrap_or(0))

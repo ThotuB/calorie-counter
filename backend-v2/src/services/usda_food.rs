@@ -12,12 +12,12 @@ enum Routes {
     Foods,
 }
 
-impl Routes {
+impl ToString for Routes {
     fn to_string(&self) -> String {
         match self {
-            Routes::Search => format!("{}/foods/search", USDA_DOMAIN),
-            Routes::FoodDto => format!("{}/food", USDA_DOMAIN),
-            Routes::Foods => format!("{}/foods", USDA_DOMAIN),
+            Routes::Search => format!("{USDA_DOMAIN}/foods/search"),
+            Routes::FoodDto => format!("{USDA_DOMAIN}/food"),
+            Routes::Foods => format!("{USDA_DOMAIN}/foods"),
         }
     }
 }
@@ -69,9 +69,9 @@ pub async fn get_usda_food_by_search(search: &str, page: i32) -> Result<(), Erro
         .send()
         .await?;
 
-    let body = res.text().await?;
+    let _body = res.text().await?;
 
-    return Ok(());
+    Ok(())
 }
 
 pub async fn get_usda_food_by_id(id: &str) -> Result<FoodDto, Error> {
@@ -86,7 +86,7 @@ pub async fn get_usda_food_by_id(id: &str) -> Result<FoodDto, Error> {
 
     let res = FoodDto::from(res);
 
-    return Ok(res);
+    Ok(res)
 }
 
 pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<FoodDto>, Error> {
@@ -110,5 +110,5 @@ pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<FoodDto>, Error>
         .map(|food| FoodDto::from(food.to_owned()))
         .collect::<Vec<_>>();
 
-    return Ok(res);
+    Ok(res)
 }

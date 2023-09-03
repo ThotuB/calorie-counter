@@ -12,5 +12,5 @@ pub async fn create_pool() -> PgPool {
         .max_connections(5)
         .connect(&database_url)
         .await
-        .expect(&format!("Error connecting to {}", database_url))
+        .unwrap_or_else(|_| panic!("Error connecting to {database_url}"))
 }

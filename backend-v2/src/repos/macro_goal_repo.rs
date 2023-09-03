@@ -15,7 +15,7 @@ pub async fn get_by_uid(conn: &PgPool, uid: &str) -> Result<Option<MacroGoal>> {
     .fetch_optional(conn)
     .await?;
 
-    return Ok(macro_goal);
+    Ok(macro_goal)
 }
 
 pub async fn create(conn: &PgPool, new_macro_goal: &MacroGoal) -> Result<()> {
@@ -33,7 +33,7 @@ pub async fn create(conn: &PgPool, new_macro_goal: &MacroGoal) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }
 
 pub async fn update(conn: &PgPool, macro_goal: &MacroGoal) -> Result<()> {
@@ -52,5 +52,5 @@ pub async fn update(conn: &PgPool, macro_goal: &MacroGoal) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }

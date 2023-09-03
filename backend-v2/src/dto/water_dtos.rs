@@ -14,12 +14,12 @@ pub struct CreateWaterDto {
     pub amount: i32,
 }
 
-impl Into<Water> for CreateWaterDto {
-    fn into(self) -> Water {
+impl From<CreateWaterDto> for Water {
+    fn from(val: CreateWaterDto) -> Self {
         Water {
-            user_id: self.user_id,
-            date: self.date,
-            amount: self.amount,
+            user_id: val.user_id,
+            date: val.date,
+            amount: val.amount,
         }
     }
 }

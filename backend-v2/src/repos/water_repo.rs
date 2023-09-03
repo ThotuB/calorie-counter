@@ -2,12 +2,7 @@ use sqlx::{PgPool, Result};
 
 use crate::models::water::Water;
 
-pub async fn get_by_user_and_date(
-    conn: &PgPool,
-    uid: &str,
-    day: chrono::NaiveDate,
-) -> Result<i32> {
-    #[derive(sqlx::FromRow)]
+pub async fn get_by_user_and_date(conn: &PgPool, uid: &str, day: chrono::NaiveDate) -> Result<i32> {
     pub struct WaterAmount {
         pub amount: i32,
     }
@@ -27,7 +22,7 @@ pub async fn get_by_user_and_date(
     .unwrap_or(WaterAmount { amount: 0 })
     .amount;
 
-    return Ok(amount);
+    Ok(amount)
 }
 
 pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Water>> {
@@ -94,7 +89,7 @@ pub async fn get_average_amount_by_user_between_dates(
     .amount
     .unwrap_or(0.0);
 
-    return Ok(avg);
+    Ok(avg)
 }
 
 pub async fn update(conn: &PgPool, updated_water: Water) -> Result<()> {
@@ -111,5 +106,5 @@ pub async fn update(conn: &PgPool, updated_water: Water) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }

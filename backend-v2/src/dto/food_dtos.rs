@@ -93,13 +93,13 @@ impl NutrientsDto {
 
     pub fn from_usda(nutrients: &Vec<USDAFoodNutrientDto>) -> Self {
         Self {
-            carbs: get_micronutrient_value(&nutrients, 1005).unwrap_or(0.0),
-            fiber: get_micronutrient_value(&nutrients, 1079),
-            sugar: get_micronutrient_value(&nutrients, 2000),
-            protein: get_micronutrient_value(&nutrients, 1003).unwrap_or(0.0),
-            fat: get_micronutrient_value(&nutrients, 1004).unwrap_or(0.0),
-            saturated_fat: get_micronutrient_value(&nutrients, 1258),
-            unsaturated_fat: get_micronutrient_value(&nutrients, 1257),
+            carbs: get_micronutrient_value(nutrients, 1005).unwrap_or(0.0),
+            fiber: get_micronutrient_value(nutrients, 1079),
+            sugar: get_micronutrient_value(nutrients, 2000),
+            protein: get_micronutrient_value(nutrients, 1003).unwrap_or(0.0),
+            fat: get_micronutrient_value(nutrients, 1004).unwrap_or(0.0),
+            saturated_fat: get_micronutrient_value(nutrients, 1258),
+            unsaturated_fat: get_micronutrient_value(nutrients, 1257),
         }
     }
 }
@@ -126,7 +126,7 @@ fn get_micronutrient_value(nutrients: &Vec<USDAFoodNutrientDto>, nutrient_id: i3
         return nutrient.amount;
     }
 
-    return None;
+    None
 }
 
 fn get_micronutrients(
@@ -141,5 +141,5 @@ fn get_micronutrients(
         }
     }
 
-    return result;
+    result
 }

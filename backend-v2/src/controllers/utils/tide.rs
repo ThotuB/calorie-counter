@@ -9,7 +9,7 @@ pub struct ErrorMessage {
 }
 
 impl ErrorMessage {
-    pub fn new(message: &str, error: &str) -> ErrorMessage {
+    pub fn new(error: &str, message: &str) -> ErrorMessage {
         ErrorMessage {
             message: message.to_string(),
             error: error.to_string(),
@@ -23,8 +23,8 @@ impl ErrorMessage {
 
 #[macro_export]
 macro_rules! error_message {
-    ($status:expr, $message:expr, $error:expr) => {
-        crate::controllers::utils::tide::ErrorMessage::new($message, $error).res($status)
+    ($status:expr, $error:expr, $message:expr) => {
+        $crate::controllers::utils::tide::ErrorMessage::new($error, $message).res($status)
     };
 }
 
@@ -38,12 +38,5 @@ macro_rules! response {
 
     ($status:expr) => {
         tide::Response::builder($status).build()
-    };
-}
-
-#[macro_export]
-macro_rules! error {
-    ($status:expr, $message:expr) => {
-        tide::Error::from_str($status, $message)
     };
 }

@@ -42,7 +42,7 @@ impl StatsDto {
                 macro_goal.percent_protein,
             ),
             intake_percentages: StatsMacroPercentagesDto::empty(),
-            calories_last_week: calories_last_week,
+            calories_last_week,
             nutrients: NutrientsDto::empty(),
             vitamins: HashMap::new(),
             minerals: HashMap::new(),

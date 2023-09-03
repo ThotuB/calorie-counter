@@ -14,7 +14,7 @@ pub async fn get_by_uid(conn: &PgPool, uid: &str) -> Result<Option<Settings>> {
     .fetch_optional(conn)
     .await?;
 
-    return Ok(settings);
+    Ok(settings)
 }
 
 pub async fn create(conn: &PgPool, new_settings: &Settings) -> Result<()> {
@@ -36,5 +36,5 @@ pub async fn create(conn: &PgPool, new_settings: &Settings) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }

@@ -14,7 +14,7 @@ pub async fn get_by_id(conn: &PgPool, id: i32) -> Result<Option<Food>> {
     .fetch_optional(conn)
     .await?;
 
-    return Ok(food);
+    Ok(food)
 }
 
 pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Food>> {
@@ -30,7 +30,7 @@ pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Food>> {
     .fetch_all(conn)
     .await?;
 
-    return Ok(foods);
+    Ok(foods)
 }
 
 pub async fn get_food_by_barcode(conn: &PgPool, barcode: i64) -> Result<Option<Food>> {
@@ -46,7 +46,7 @@ pub async fn get_food_by_barcode(conn: &PgPool, barcode: i64) -> Result<Option<F
     .fetch_optional(conn)
     .await?;
 
-    return Ok(food);
+    Ok(food)
 }
 
 pub async fn create(conn: &PgPool, new_food: &NewFood) -> Result<()> {
@@ -59,18 +59,18 @@ pub async fn create(conn: &PgPool, new_food: &NewFood) -> Result<()> {
     .bind(&new_food.user_id)
     .bind(&new_food.name)
     .bind(&new_food.brand)
-    .bind(&new_food.barcode)
-    .bind(&new_food.calories)
-    .bind(&new_food.carbs)
-    .bind(&new_food.protein)
-    .bind(&new_food.fat)
-    .bind(&new_food.serving_size)
+    .bind(new_food.barcode)
+    .bind(new_food.calories)
+    .bind(new_food.carbs)
+    .bind(new_food.protein)
+    .bind(new_food.fat)
+    .bind(new_food.serving_size)
     .bind(&new_food.serving_size_unit)
     .bind(&new_food.ingredients)
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }
 
 pub async fn delete(conn: &PgPool, id: i32) -> Result<()> {
@@ -84,5 +84,5 @@ pub async fn delete(conn: &PgPool, id: i32) -> Result<()> {
     .execute(conn)
     .await?;
 
-    return Ok(());
+    Ok(())
 }

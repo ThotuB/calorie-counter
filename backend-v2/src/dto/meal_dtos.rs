@@ -23,7 +23,7 @@ impl MealDto {
         Self {
             id: meal.id,
             user_id: meal.user_id,
-            food: food.clone(),
+            food,
             meal_type: meal.meal_type,
             date: meal.date,
             portions: meal.portions,
@@ -43,20 +43,20 @@ pub struct CreateMealDto {
     pub source: Source,
 }
 
-impl Into<NewMeal> for CreateMealDto {
-    fn into(self) -> NewMeal {
+impl From<CreateMealDto> for NewMeal {
+    fn from(val: CreateMealDto) -> Self {
         NewMeal {
-            user_id: self.user_id,
-            food_id: self.food.id,
-            meal_type: self.meal_type,
-            date: self.date,
-            portions: self.portions,
-            portion_size: self.portion_size,
-            calories: self.food.calories as i32,
-            protein: self.food.nutrients.protein,
-            carbs: self.food.nutrients.carbs,
-            fat: self.food.nutrients.fat,
-            source: self.source,
+            user_id: val.user_id,
+            food_id: val.food.id,
+            meal_type: val.meal_type,
+            date: val.date,
+            portions: val.portions,
+            portion_size: val.portion_size,
+            calories: val.food.calories as i32,
+            protein: val.food.nutrients.protein,
+            carbs: val.food.nutrients.carbs,
+            fat: val.food.nutrients.fat,
+            source: val.source,
         }
     }
 }
