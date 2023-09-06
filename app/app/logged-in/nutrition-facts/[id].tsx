@@ -14,63 +14,63 @@ import { HeartIcon } from 'src/icons/outline';
 import { HeartIcon as HearIconSolid } from 'src/icons/solid';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getFoodById } from 'src/services/usda-food';
 import NutritionalFacts from 'src/components/food/nutrition/NutritionalFacts';
 import { addFavoriteFood, isFavoriteFood, removeFavoriteFood } from 'src/services/favorite-food';
 import { addMeal } from 'src/services/meal';
 import { useAuthedUser } from 'src/contexts/UserContext';
 import { CreateMeal } from 'src/types/meal-types';
 import { page } from 'src/constants/routes/app';
-import FoodRatingPlaceholder from 'src/components/food/nutrition/FoodRatingPlaceholder';
-import NutritionalFactsPlaceholder from 'src/components/food/nutrition/NutritionalFactsPlaceholder';
 import { useDate } from 'src/contexts/DateContext';
-import { AddRemoveFavoriteFoodDto } from 'src/types/favorite-food';
+import { useFood } from 'src/contexts/FoodContext';
 
 const NutritionFacts: React.FC = () => {
-	const router = useRouter();
-	const { id, name } = useLocalSearchParams();
-	const { user } = useAuthedUser();
-	const { invalidateQueries } = useQueryClient();
-	const { dateYMD } = useDate();
+	const { food } = useFood();
 
-	const fid = parseInt(id as string);
+	const router = useRouter();
+	const { user } = useAuthedUser();
+	const queryClient = useQueryClient();
+	const { dateYMD } = useDate();
 
 	const [isFavorite, setIsFavorite] = useState(false);
 	const [nrOfServings, setNrOfServings] = useState('1');
 	const [servingSize, setServingSize] = useState<'grams' | '100 grams' | 'serving'>(`serving`);
 	const [modalVisible, setModalVisible] = useState(false);
 
-	// queries
-	const { data: food, isLoading } = useQuery(['food', id], () =>
-		getFoodById(id as string),
-	);
-
-	useQuery(['favorite-food', id], () => isFavoriteFood({
-		user_id: user.id,
-		food_id: fid,
-		source: 'usda'
-	}), {
+	useQuery(['favorite-food', food!.id], () => isFavoriteFood(
+		user.id,
+		food!.id,
+		food!.source
+	), {
 		onSuccess: (data) => {
 			setIsFavorite(data);
-		}
+		},
+		enabled: !!food
 	})
 
 	// mutations
 	const { mutate: addFavFoodMutation, isLoading: isAddFavFoodLoading } = useMutation(() => addFavoriteFood({
 		user_id: user.id,
-		food_id: fid,
-		source: 'usda'
-	}))
+		food_id: food!.id,
+		source: food!.source
+	}), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['favorite-foods']);
+		}
+	})
 
-	const { mutate: removeFavFoodMutation, isLoading: isRemoveFavFoodLoading } = useMutation(() => removeFavoriteFood({
-		user_id: user.id,
-		food_id: fid,
-		source: 'usda'
-	}))
+	const { mutate: removeFavFoodMutation, isLoading: isRemoveFavFoodLoading } = useMutation(() => removeFavoriteFood(
+		user.id,
+		food!.id,
+		food!.source
+	), {
+		onSuccess: () => {
+			queryClient.invalidateQueries(['favorite-foods']);
+		}
+	})
 
 	const { mutate: addMealMutation, isLoading: isAddMealLoading } = useMutation((newMeal: CreateMeal) => addMeal(newMeal), {
 		onSuccess: () => {
-			invalidateQueries(['meal']);
+			queryClient.invalidateQueries(['daily', user.id, dateYMD]);
 			router.push(page.home.diary);
 		}
 	})
@@ -108,6 +108,8 @@ const NutritionFacts: React.FC = () => {
 		})
 	}
 
+	if (!food) return null;
+
 	return (
 		<View className='h-full w-full flex-col bg-zinc-900'>
 			<SafeAreaView className='sticky w-full bg-zinc-800'>
@@ -116,7 +118,7 @@ const NutritionFacts: React.FC = () => {
 						<ChevronLeftIcon svgClassName='w-6 h-6 text-white' />
 					</Pressable>
 					<Text className='text-base font-bold text-white'>
-						{name}
+						{food.name}
 					</Text>
 					<Pressable
 						onPress={onPressHeart}
@@ -155,18 +157,15 @@ const NutritionFacts: React.FC = () => {
 							</Pressable>
 						</View>
 
-						{food ?
-							<FoodRating
-								calories={food.calories}
-								nutrients={food.nutrients}
-								vitamins={food.vitamins}
-								minerals={food.minerals}
-								aminos={food.amino_acids}
-							/> :
-							<FoodRatingPlaceholder />
-						}
+						<FoodRating
+							calories={food.calories}
+							nutrients={food.nutrients}
+							vitamins={food.vitamins}
+							minerals={food.minerals}
+							aminos={food.amino_acids}
+						/>
 
-						{food ? <NutritionalFacts food={food} /> : <NutritionalFactsPlaceholder />}
+						<NutritionalFacts food={food} />
 
 						<View className='mt-6 mb-4 w-full flex-row justify-center'>
 							<Text className='font-bold text-zinc-300'>

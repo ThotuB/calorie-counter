@@ -1,0 +1,31 @@
+# Calory
+github: https://github.com/ThotuB/calorie-counter
+gitlab: https://gitlab.upt.ro/bogdan.tatu/calorie-counter
+
+## How to run application 
+
+Install Git and clone the repository
+
+### Backend
+
+Install Rust and Cargo
+Install Postgres
+
+
+```
+cd backend-v2
+cargo build
+cargo run
+```
+
+### Frontend
+
+Install Node.js
+
+```
+cd app
+npm install
+npx expo start
+```
+
+Install Expo app on your phone and scan the QR code to run the app on your phone

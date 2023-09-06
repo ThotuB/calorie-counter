@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-#[derive(Debug, Type, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Type, Serialize, Deserialize, PartialEq, Clone)]
 #[sqlx(type_name = "source", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum Source {

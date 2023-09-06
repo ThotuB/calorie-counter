@@ -86,6 +86,24 @@ pub async fn get_by_user_and_date(
     Ok(meals)
 }
 
+pub async fn get_recent(conn: &PgPool, uid: &str) -> Result<Vec<Meal>> {
+    let meals = sqlx::query_as!(
+        Meal,
+        r#"
+        SELECT id, user_id, food_id, meal_type AS "meal_type: _", date, portions, portion_size AS "portion_size: _", calories, protein, carbs, fat, source AS "source: _"
+        FROM meals 
+        WHERE user_id = $1
+        ORDER BY date DESC
+        LIMIT 10
+        "#,
+        uid
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(meals)
+}
+
 pub async fn get_total_macro_intake_per_day_between_dates_for_user(
     conn: &PgPool,
     uid: &str,

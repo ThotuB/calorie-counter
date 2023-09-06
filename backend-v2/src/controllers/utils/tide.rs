@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tide::{Response, StatusCode};
+use tide::{Error, Response, StatusCode};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ErrorMessage {
@@ -16,8 +16,23 @@ impl ErrorMessage {
         }
     }
 
-    pub fn res(&self, status: StatusCode) -> Response {
-        Response::builder(status).body(json!(self)).build()
+    pub fn res(self, status: StatusCode) -> Response {
+        let mut res = Response::builder(status).body(json!(self)).build();
+        res.set_error(Error::new(status, anyhow::Error::from(self)));
+
+        res
+    }
+}
+
+impl ToString for ErrorMessage {
+    fn to_string(&self) -> String {
+        format!("{}: {}", self.error, self.message)
+    }
+}
+
+impl From<ErrorMessage> for anyhow::Error {
+    fn from(val: ErrorMessage) -> Self {
+        anyhow::Error::msg(val.to_string())
     }
 }
 

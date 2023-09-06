@@ -1,21 +1,22 @@
+use chrono::NaiveDate;
 use sqlx::PgPool;
-use tide::{Request, Result, StatusCode};
+use tide::{log, Request, Result, StatusCode};
 
 use crate::{
     dto::{daily_dtos::DailyDto, meal_dtos::MealDto},
     error_message,
     repos::{macro_goal_repo, meal_repo},
     response,
-    services::usda_food::get_usda_foods_by_ids,
+    services::usda_food,
 };
 
-use super::utils::traits::{FromISO, MapErrorToServerError};
+use super::utils::traits::{MapErrorToServerError, ParseYMD};
 
 pub async fn get_daily(req: Request<PgPool>) -> Result {
     let user_id = req.param("uid")?;
     let date = req.param("date")?;
 
-    let Ok(date) = chrono::NaiveDate::from_iso(date) else {
+    let Ok(date) = NaiveDate::parse_ymd(date) else {
         return Ok(error_message!(
             StatusCode::BadRequest,
             "invalid-date-format",
@@ -41,8 +42,12 @@ pub async fn get_daily(req: Request<PgPool>) -> Result {
         return Ok(response!(StatusCode::Ok, DailyDto::empty(date, macro_goal)));
     }
 
+    log::info!("LEMME TRY!!!!@@@@@@@@@@@@@");
+
     let ids = meals.iter().map(|m| m.food_id).collect::<Vec<i32>>();
-    let foods = get_usda_foods_by_ids(ids).await.map_err_to_server_error()?;
+    let foods = usda_food::get_usda_foods_by_ids(ids).await?;
+
+    log::info!("IT WORKS!!!!@@@@@@@@@@@@@");
 
     let data = DailyDto::new(
         date,

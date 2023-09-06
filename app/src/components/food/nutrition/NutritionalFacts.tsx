@@ -256,7 +256,7 @@ const NutrientRow: React.FC<{
 			<Text
 				className={`text-base text-zinc-300 ${bold ? 'font-bold' : ''}`}
 			>
-				{amount} {unit}
+				{amount?.toFixed(0) || 0} {unit}
 			</Text>
 		</View>
 	);

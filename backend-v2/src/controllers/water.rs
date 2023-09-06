@@ -1,9 +1,10 @@
+use chrono::NaiveDate;
 use sqlx::PgPool;
 use tide::{Request, Result, StatusCode};
 
 use crate::{dto::water_dtos::CreateWaterDto, error_message, repos::water_repo, response};
 
-use super::utils::traits::{FromISO, MapErrorToServerError};
+use super::utils::traits::{MapErrorToServerError, ParseYMD};
 
 pub async fn get_water(req: Request<PgPool>) -> Result {
     let user_id = req.param("uid")?;
@@ -11,7 +12,7 @@ pub async fn get_water(req: Request<PgPool>) -> Result {
 
     let connection = req.state();
 
-    let Ok(date) = FromISO::from_iso(date) else {
+    let Ok(date) = NaiveDate::parse_ymd(date) else {
         return Ok(error_message!(
             tide::StatusCode::BadRequest,
             "invalid-date-format",

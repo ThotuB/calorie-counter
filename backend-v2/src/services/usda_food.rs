@@ -1,5 +1,5 @@
-use reqwest::Error;
 use serde::Deserialize;
+use surf::Error;
 
 use crate::dto::food_dtos::FoodDto;
 
@@ -56,32 +56,42 @@ pub struct USDABranndedFoodItemDto {
 }
 
 pub async fn get_usda_food_by_search(search: &str, page: i32) -> Result<(), Error> {
-    let client = reqwest::Client::new();
-    let res = client
-        .get(&Routes::Search.to_string())
-        .query(&[
-            ("api_key", USDA_API_KEY),
-            ("generalSearchInput", search),
-            ("dataType", "Branded"),
-            ("pageNumber", &page.to_string()),
-            ("pageSize", "10"),
-        ])
-        .send()
-        .await?;
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct SearchQuery {
+        #[serde(rename = "api_key")]
+        api_key: String,
+        general_search_input: String,
+        data_type: String,
+        page_number: i32,
+        page_size: i32,
+    }
 
-    let _body = res.text().await?;
+    let res = surf::get(Routes::Search.to_string())
+        .query(&SearchQuery {
+            api_key: USDA_API_KEY.to_string(),
+            general_search_input: search.to_string(),
+            data_type: "Branded".to_string(),
+            page_number: page,
+            page_size: 10,
+        })?
+        .recv_json::<Vec<USDABranndedFoodItemDto>>()
+        .await?;
 
     Ok(())
 }
 
 pub async fn get_usda_food_by_id(id: &str) -> Result<FoodDto, Error> {
-    let client = reqwest::Client::new();
-    let res = client
-        .get(&format!("{}/{}", Routes::FoodDto.to_string(), id))
-        .query(&[("api_key", USDA_API_KEY)])
-        .send()
-        .await?
-        .json::<USDABranndedFoodItemDto>()
+    #[derive(Serialize)]
+    struct FoodQuery {
+        api_key: String,
+    }
+
+    let res = surf::get(format!("{}/{}", Routes::FoodDto.to_string(), id))
+        .query(&FoodQuery {
+            api_key: USDA_API_KEY.to_string(),
+        })?
+        .recv_json::<USDABranndedFoodItemDto>()
         .await?;
 
     let res = FoodDto::from(res);
@@ -90,25 +100,29 @@ pub async fn get_usda_food_by_id(id: &str) -> Result<FoodDto, Error> {
 }
 
 pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<FoodDto>, Error> {
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct FoodsQuery {
+        #[serde(rename = "api_key")]
+        api_key: String,
+        fdc_ids: String,
+    }
+
     let ids = &ids
         .iter()
         .map(|id| id.to_string())
         .collect::<Vec<String>>()
         .join(",");
 
-    let client = reqwest::Client::new();
-    let res = client
-        .get(&Routes::Foods.to_string())
-        .query(&[("api_key", USDA_API_KEY), ("fdcIds", ids)])
-        .send()
-        .await?
-        .json::<Vec<USDABranndedFoodItemDto>>()
+    let res = surf::get(Routes::Foods.to_string())
+        .query(&FoodsQuery {
+            api_key: USDA_API_KEY.to_string(),
+            fdc_ids: ids.to_string(),
+        })?
+        .recv_json::<Vec<USDABranndedFoodItemDto>>()
         .await?;
 
-    let res = res
-        .iter()
-        .map(|food| FoodDto::from(food.to_owned()))
-        .collect::<Vec<_>>();
+    let res = res.into_iter().map(FoodDto::from).collect::<Vec<_>>();
 
     Ok(res)
 }

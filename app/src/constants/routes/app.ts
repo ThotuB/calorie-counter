@@ -48,6 +48,7 @@ export const page = {
     food: {
         search_food: `${routes.food}/SearchFood`,
         scan_food: `${routes.food}/ScanFood`,
+        create_food: `${routes.food}/CreateFood`,
     },
     nutrition_facts: {
         id: `${routes.nutrition_facts}/`,

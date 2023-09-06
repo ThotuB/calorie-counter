@@ -1,9 +1,10 @@
 use controllers::*;
+use middleware::{log_middleware::LogMiddleware, user_middleware::UserMiddleware};
+use services::usda_food::*;
 use sqlx::PgPool;
 use tide::{
-    http::Request,
     utils::{After, Before},
-    Response,
+    Request, Response,
 };
 
 #[macro_use]
@@ -26,11 +27,24 @@ mod services;
 async fn main() -> tide::Result<()> {
     femme::start();
 
+    start_server().await?;
+
+    Ok(())
+}
+
+async fn start_server() -> tide::Result<()> {
     let mut app = tide::new();
 
-    app.with(tide::log::LogMiddleware::new());
-    app.with(After(|mut res: Response| async move {
-        println!("does it work? {}", res.status());
+    app.with(LogMiddleware::new());
+    app.with(After(|res: Response| async move {
+        if let Some(error) = res.error() {
+            return Ok(error_message!(
+                res.status(),
+                error.type_name().unwrap_or("unknown-error-type"),
+                &format!("{error:?}")
+            ));
+        }
+
         Ok(res)
     }));
 
@@ -46,6 +60,8 @@ async fn main() -> tide::Result<()> {
         api.at("/user/:uid").nest({
             let mut user = tide::with_state(db::create_pool().await);
 
+            user.with(UserMiddleware::new());
+
             user.at("/water").nest({
                 let mut water = tide::with_state(db::create_pool().await);
 
@@ -60,18 +76,20 @@ async fn main() -> tide::Result<()> {
                 favorite_foods
                     .at("/")
                     .get(favorite_foods::get_favorite_foods)
-                    .post(favorite_foods::post_favorite_food)
-                    .delete(favorite_foods::delete_favorite_food);
+                    .post(favorite_foods::post_favorite_food);
                 favorite_foods
-                    .at("/:id")
-                    .get(favorite_foods::is_favorite_food);
+                    .at("/:source/:fid")
+                    .get(favorite_foods::is_favorite_food)
+                    .delete(favorite_foods::delete_favorite_food);
 
                 favorite_foods
             });
             user.at("/meals").nest({
                 let mut meals = tide::with_state(db::create_pool().await);
 
-                meals.at("/").get(meals::get_meals).post(meals::post_meal);
+                meals.at("/:date").get(meals::get_meals);
+                meals.at("/recent").get(meals::get_recent_meals);
+                meals.at("/").post(meals::post_meal);
                 meals.at("/:mid").delete(meals::delete_meal);
 
                 meals
@@ -105,8 +123,8 @@ async fn main() -> tide::Result<()> {
 
                 settings
                     .at("/")
-                    .get(settings::get_settings)
-                    .put(settings::put_settings);
+                    .get(settings::get_macro_goal)
+                    .put(settings::put_macro_goal);
 
                 settings
             });
@@ -129,7 +147,17 @@ async fn main() -> tide::Result<()> {
         api
     });
 
+    app.at("*").all(handle_404);
+
     app.listen("0.0.0.0:3000").await?;
 
     Ok(())
+}
+
+async fn handle_404(_: tide::Request<()>) -> tide::Result {
+    Ok(error_message!(
+        tide::StatusCode::NotFound,
+        "route-not-found",
+        "Route not found."
+    ))
 }

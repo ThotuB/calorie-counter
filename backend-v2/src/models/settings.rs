@@ -33,7 +33,7 @@ pub enum WeightGoal {
     Gain,
 }
 
-#[derive(FromRow, Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
     pub user_id: String,
     pub weight_goal: WeightGoal,

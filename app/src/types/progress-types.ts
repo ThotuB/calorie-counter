@@ -1,6 +1,7 @@
 export interface ProgressDto {
     average: ProgressTrackedDto,
     max: ProgressTrackedDto,
+    goal: ProgressTrackedDto,
     percent_breakfast: number,
     percent_lunch: number,
     percent_dinner: number,

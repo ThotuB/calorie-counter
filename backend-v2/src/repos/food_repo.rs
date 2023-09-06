@@ -1,4 +1,4 @@
-use crate::models::food::{Food, NewFood};
+use crate::models::food::{Food, NewFood, ServingSizeUnit};
 use sqlx::{PgPool, Result};
 
 pub async fn get_by_id(conn: &PgPool, id: i32) -> Result<Option<Food>> {
@@ -50,23 +50,23 @@ pub async fn get_food_by_barcode(conn: &PgPool, barcode: i64) -> Result<Option<F
 }
 
 pub async fn create(conn: &PgPool, new_food: &NewFood) -> Result<()> {
-    sqlx::query(
+    sqlx::query!(
         r#"
-            INSERT INTO foods (user_id, name, brand, barcode, calories, carbs, protein, fat, serving_size, serving_size_unit, ingredients)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            INSERT INTO food (user_id, name, brand, barcode, calories, carbs, protein, fat, serving_size, serving_size_unit, ingredients)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         "#,
+        &new_food.user_id,
+        &new_food.name,
+        new_food.brand,
+        new_food.barcode,
+        new_food.calories,
+        new_food.carbs,
+        new_food.protein,
+        new_food.fat,
+        new_food.serving_size,
+        &new_food.serving_size_unit as &ServingSizeUnit,
+        new_food.ingredients
     )
-    .bind(&new_food.user_id)
-    .bind(&new_food.name)
-    .bind(&new_food.brand)
-    .bind(new_food.barcode)
-    .bind(new_food.calories)
-    .bind(new_food.carbs)
-    .bind(new_food.protein)
-    .bind(new_food.fat)
-    .bind(new_food.serving_size)
-    .bind(&new_food.serving_size_unit)
-    .bind(&new_food.ingredients)
     .execute(conn)
     .await?;
 
@@ -74,13 +74,13 @@ pub async fn create(conn: &PgPool, new_food: &NewFood) -> Result<()> {
 }
 
 pub async fn delete(conn: &PgPool, id: i32) -> Result<()> {
-    sqlx::query(
+    sqlx::query!(
         r#"
             DELETE FROM food
             WHERE id = $1
         "#,
+        id
     )
-    .bind(id)
     .execute(conn)
     .await?;
 

@@ -1,9 +1,8 @@
 use sqlx::{PgPool, Result};
 
-use crate::models::{enums::Source, favorite_food::FavoriteFood};
+use crate::models::{enums::Source, favorite_food::FavoriteFood, food::Food};
 
 pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<i32>> {
-    #[derive(sqlx::FromRow)]
     struct FoodId {
         food_id: i32,
     }
@@ -11,9 +10,9 @@ pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<i32>> {
     let ids = sqlx::query_as!(
         FoodId,
         r#"
-            SELECT food_id
-            FROM favorite_foods
-            WHERE user_id = $1
+        SELECT food_id
+        FROM favorite_foods
+        WHERE user_id = $1
         "#,
         uid
     )
@@ -26,17 +25,24 @@ pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<i32>> {
     Ok(ids)
 }
 
-// pub async fn get_fav_user_created_foods_by_user_id(conn: &PgPool, uid: &str) -> Vec<i32> {
-//     return favorite_foods::table
-//         .filter(favorite_foods::user_id.eq(uid))
-//         .filter(favorite_foods::source.eq(Source::User))
-//         .inner_join(food::table)
-//         .load::<i32>(conn)
-//         .expect("Error loading favorite foods by user id");
-// }
+pub async fn get_created_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Food>> {
+    let foods = sqlx::query_as!(
+        Food,
+        r#"
+        SELECT id, food.user_id, name, brand, barcode, calories, carbs, protein, fat, serving_size, serving_size_unit AS "serving_size_unit: _", ingredients
+        FROM food
+        INNER JOIN favorite_foods ON food.id = favorite_foods.food_id
+        WHERE favorite_foods.user_id = $1 AND favorite_foods.source = 'user'
+        "#,
+        uid
+    )
+    .fetch_all(conn)
+    .await?;
 
-pub async fn get_by_user_with_usda_source(conn: &PgPool, uid: &str) -> Result<Vec<i32>> {
-    #[derive(sqlx::FromRow)]
+    Ok(foods)
+}
+
+pub async fn get_by_user_and_source(conn: &PgPool, uid: &str, source: &Source) -> Result<Vec<i32>> {
     struct FoodId {
         food_id: i32,
     }
@@ -49,7 +55,7 @@ pub async fn get_by_user_with_usda_source(conn: &PgPool, uid: &str) -> Result<Ve
             WHERE user_id = $1 AND source = $2
         "#,
         uid,
-        Source::Usda as Source
+        source as &Source
     )
     .fetch_all(conn)
     .await?
@@ -111,14 +117,6 @@ pub async fn create(conn: &PgPool, favorite_food: &FavoriteFood) -> Result<()> {
     )
     .execute(conn)
     .await?;
-
-    Ok(())
-}
-
-pub async fn create_many(conn: &PgPool, favorite_foods: Vec<&FavoriteFood>) -> Result<()> {
-    for favorite_food in favorite_foods {
-        create(conn, favorite_food).await?;
-    }
 
     Ok(())
 }

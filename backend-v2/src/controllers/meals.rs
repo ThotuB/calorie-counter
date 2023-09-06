@@ -1,18 +1,16 @@
+use chrono::NaiveDate;
 use sqlx::PgPool;
 use tide::{Request, Result, StatusCode};
 
 use crate::{
-    dto::{
-        food_dtos::FoodDto,
-        meal_dtos::{CreateMealDto, MealDto},
-    },
+    dto::meal_dtos::{CreateMealDto, MealDto},
     error_message,
     repos::meal_repo,
     response,
-    services::usda_food::get_usda_foods_by_ids,
+    services::usda_food,
 };
 
-use super::utils::traits::{FromISO, MapErrorToServerError};
+use super::utils::traits::{MapErrorToServerError, ParseYMD};
 
 pub async fn get_meals(req: Request<PgPool>) -> Result {
     let user_id = req.param("uid")?;
@@ -20,7 +18,7 @@ pub async fn get_meals(req: Request<PgPool>) -> Result {
 
     let connection = req.state();
 
-    let Ok(date) = FromISO::from_iso(date) else {
+    let Ok(date) = NaiveDate::parse_ymd(date) else {
         return Ok(error_message!(
             tide::StatusCode::BadRequest,
             "invalid-date-format",
@@ -33,11 +31,34 @@ pub async fn get_meals(req: Request<PgPool>) -> Result {
         .map_err_to_server_error()?;
 
     if meals.is_empty() {
-        return Ok(response!(StatusCode::Ok, Vec::<FoodDto>::new()));
+        return Ok(response!(StatusCode::Ok, Vec::<MealDto>::new()));
     }
 
     let ids = meals.iter().map(|m| m.food_id).collect::<Vec<i32>>();
-    let foods = get_usda_foods_by_ids(ids).await.map_err_to_server_error()?;
+    let foods = usda_food::get_usda_foods_by_ids(ids).await?;
+
+    let data = std::iter::zip(meals, foods)
+        .map(|(meal, food)| MealDto::from_meal(meal, food))
+        .collect::<Vec<_>>();
+
+    Ok(response!(StatusCode::Ok, data))
+}
+
+pub async fn get_recent_meals(req: Request<PgPool>) -> Result {
+    let user_id = req.param("uid")?;
+
+    let connection = req.state();
+
+    let meals = meal_repo::get_recent(connection, user_id)
+        .await
+        .map_err_to_server_error()?;
+
+    if meals.is_empty() {
+        return Ok(response!(StatusCode::Ok, Vec::<MealDto>::new()));
+    }
+
+    let ids = meals.iter().map(|m| m.food_id).collect::<Vec<i32>>();
+    let foods = usda_food::get_usda_foods_by_ids(ids).await?;
 
     let data = std::iter::zip(meals, foods)
         .map(|(meal, food)| MealDto::from_meal(meal, food))

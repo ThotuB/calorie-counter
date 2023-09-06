@@ -4,7 +4,6 @@ type DateContext = {
     date: Date;
     day: string
     dateYMD: string;
-    dateISO: string;
     setDate: (date: Date) => void;
     setTomorrow: () => void;
     setYesterday: () => void;
@@ -41,7 +40,6 @@ export const DateProvider: React.FC<{
             });
 
     const dateYMD = dateToYMD(date);
-    const dateISO = date.toISOString();
 
     const setTomorrow = () => {
         const tomorrow = new Date(date);
@@ -61,7 +59,6 @@ export const DateProvider: React.FC<{
                 date,
                 day,
                 dateYMD,
-                dateISO,
                 setDate,
                 setTomorrow,
                 setYesterday,
@@ -73,10 +70,11 @@ export const DateProvider: React.FC<{
     );
 };
 
-const dateToYMD = (date: Date) => {
+export const dateToYMD = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // 0-indexed
     const day = date.getDate();
 
-    return `${year}-${month}-${day}`;
+    return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day
+        }`;
 }

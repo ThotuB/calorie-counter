@@ -25,20 +25,6 @@ pub async fn get_by_user_and_date(conn: &PgPool, uid: &str, day: chrono::NaiveDa
     Ok(amount)
 }
 
-pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Water>> {
-    return sqlx::query_as!(
-        Water,
-        r"
-            SELECT user_id, date, amount
-            FROM water
-            WHERE user_id = $1
-        ",
-        uid,
-    )
-    .fetch_all(conn)
-    .await;
-}
-
 pub async fn get_by_user_between_dates(
     conn: &PgPool,
     uid: &str,
@@ -85,9 +71,7 @@ pub async fn get_average_amount_by_user_between_dates(
     )
     .fetch_optional(conn)
     .await?
-    .unwrap_or(WaterAverage { amount: Some(0.0) })
-    .amount
-    .unwrap_or(0.0);
+    .map_or(0.0, |w| w.amount.unwrap_or(0.0));
 
     Ok(avg)
 }

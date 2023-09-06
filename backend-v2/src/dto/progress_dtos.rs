@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 use crate::{
-    models::meal::MealType,
+    models::{macro_goal::MacroGoal, meal::MealType},
     repos::meal_repo::{MealAveragePerMealType, MealGroup},
 };
 
@@ -9,6 +9,7 @@ use crate::{
 pub struct ProgressDto {
     pub average: ProgressTrackedDto,
     pub max: ProgressTrackedDto,
+    pub goal: ProgressTrackedDto,
     pub percent_breakfast: f32,
     pub percent_lunch: f32,
     pub percent_dinner: f32,
@@ -21,6 +22,7 @@ impl ProgressDto {
         Self {
             average: ProgressTrackedDto::empty(),
             max: ProgressTrackedDto::empty(),
+            goal: ProgressTrackedDto::empty(),
             percent_breakfast: 0.0,
             percent_lunch: 0.0,
             percent_dinner: 0.0,
@@ -29,10 +31,21 @@ impl ProgressDto {
         }
     }
 
-    pub fn new(meals: Vec<MealGroup>, averages_per_meal_type: Vec<MealAveragePerMealType>) -> Self {
+    pub fn new(
+        goals: MacroGoal,
+        meals: Vec<MealGroup>,
+        averages_per_meal_type: Vec<MealAveragePerMealType>,
+    ) -> Self {
         Self {
             average: Self::get_avg_per_day(&meals),
             max: Self::get_max_per_day(&meals),
+            goal: ProgressTrackedDto {
+                calories: goals.calories,
+                carbs: goals.carbs,
+                protein: goals.protein,
+                fat: goals.fat,
+                water: 0,
+            },
             percent_breakfast: Self::get_percent_meal_type(
                 &averages_per_meal_type,
                 MealType::Breakfast,
@@ -90,7 +103,7 @@ impl ProgressDto {
         }
     }
 
-    fn get_percent_meal_type(meal_types: &Vec<MealAveragePerMealType>, meal_type: MealType) -> f32 {
+    fn get_percent_meal_type(meal_types: &[MealAveragePerMealType], meal_type: MealType) -> f32 {
         let total_calories: i32 = meal_types.iter().map(|mt| mt.calories.unwrap_or(0)).sum();
 
         match meal_types.iter().find(|mt| mt.meal_type == meal_type) {

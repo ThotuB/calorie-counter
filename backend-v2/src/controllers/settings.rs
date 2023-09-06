@@ -7,7 +7,7 @@ use crate::{
 
 use super::utils::traits::MapErrorToServerError;
 
-pub async fn get_settings(req: Request<PgPool>) -> Result {
+pub async fn get_macro_goal(req: Request<PgPool>) -> Result {
     let user_id = req.param("uid")?;
 
     let connection = req.state();
@@ -22,7 +22,7 @@ pub async fn get_settings(req: Request<PgPool>) -> Result {
     Ok(response!(StatusCode::Ok, macro_goal))
 }
 
-pub async fn put_settings(mut req: Request<PgPool>) -> Result {
+pub async fn put_macro_goal(mut req: Request<PgPool>) -> Result {
     let update_macros = req.body_json::<UpdateMacrosDto>().await?;
 
     let connection = req.state();

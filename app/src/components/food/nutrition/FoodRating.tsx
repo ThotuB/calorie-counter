@@ -31,7 +31,7 @@ const FoodRating: React.FC<{
 			<View className='mb-5 flex-col rounded-lg bg-zinc-800 px-3 py-3'>
 				<View className='flex-row items-center justify-center'>
 					<Text className='text-3xl font-semibold text-white'>
-						{calories}
+						{calories.toFixed(0)}
 					</Text>
 					<Text className='ml-1 text-xl text-white'>kcal</Text>
 				</View>

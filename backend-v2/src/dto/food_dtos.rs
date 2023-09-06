@@ -4,11 +4,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     constants::usda_ids::{get_usda_ids, UsdaMicronutrient},
-    models::food::{Food, ServingSizeUnit},
+    models::{
+        enums::Source,
+        food::{Food, ServingSizeUnit},
+    },
     services::usda_food::{USDABranndedFoodItemDto, USDAFoodNutrientDto},
 };
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FoodDto {
     pub id: i32,
     pub name: String,
@@ -22,6 +25,7 @@ pub struct FoodDto {
     pub vitamins: HashMap<String, f32>,
     pub minerals: HashMap<String, f32>,
     pub amino_acids: HashMap<String, f32>,
+    pub source: Source,
 }
 
 impl From<USDABranndedFoodItemDto> for FoodDto {
@@ -41,6 +45,7 @@ impl From<USDABranndedFoodItemDto> for FoodDto {
             vitamins: get_micronutrients(&nutrients, get_usda_ids(UsdaMicronutrient::Vitamin)),
             minerals: get_micronutrients(&nutrients, get_usda_ids(UsdaMicronutrient::Mineral)),
             amino_acids: get_micronutrients(&nutrients, get_usda_ids(UsdaMicronutrient::AminoAcid)),
+            source: Source::Usda,
         }
     }
 }
@@ -63,11 +68,12 @@ impl From<Food> for FoodDto {
             vitamins: HashMap::new(),
             minerals: HashMap::new(),
             amino_acids: HashMap::new(),
+            source: Source::User,
         }
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NutrientsDto {
     pub carbs: f32,
     pub fiber: Option<f32>,
@@ -91,7 +97,7 @@ impl NutrientsDto {
         }
     }
 
-    pub fn from_usda(nutrients: &Vec<USDAFoodNutrientDto>) -> Self {
+    pub fn from_usda(nutrients: &[USDAFoodNutrientDto]) -> Self {
         Self {
             carbs: get_micronutrient_value(nutrients, 1005).unwrap_or(0.0),
             fiber: get_micronutrient_value(nutrients, 1079),
@@ -118,7 +124,7 @@ impl From<&Food> for NutrientsDto {
     }
 }
 
-fn get_micronutrient_value(nutrients: &Vec<USDAFoodNutrientDto>, nutrient_id: i32) -> Option<f32> {
+fn get_micronutrient_value(nutrients: &[USDAFoodNutrientDto], nutrient_id: i32) -> Option<f32> {
     if let Some(nutrient) = nutrients
         .iter()
         .find(|n| n.nutrient.id == Some(nutrient_id))
@@ -130,7 +136,7 @@ fn get_micronutrient_value(nutrients: &Vec<USDAFoodNutrientDto>, nutrient_id: i3
 }
 
 fn get_micronutrients(
-    nutrients: &Vec<USDAFoodNutrientDto>,
+    nutrients: &[USDAFoodNutrientDto],
     nutrients_name_id: HashMap<&str, i32>,
 ) -> HashMap<String, f32> {
     let mut result = HashMap::new();

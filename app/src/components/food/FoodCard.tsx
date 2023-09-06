@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { page } from 'src/constants/routes/app';
 import { useDate } from 'src/contexts/DateContext';
+import { useFood } from 'src/contexts/FoodContext';
 import { useAuthedUser } from 'src/contexts/UserContext';
 import { CheckIcon, PlusIcon } from 'src/icons/outline';
 import { PencilIcon } from 'src/icons/solid';
@@ -15,6 +16,7 @@ const FoodCard: React.FC<{
 	mealType: MealType;
 }> = ({ food, mealType }) => {
 	const { id, name, brand, alternative_serving_size, serving_size, serving_size_unit, calories } = food;
+	const { setFood } = useFood();
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const { user } = useAuthedUser();
@@ -27,10 +29,8 @@ const FoodCard: React.FC<{
 	});
 
 	const handleShowFood = () => {
-		router.push({
-			pathname: `${page.nutrition_facts.id}/${id}`,
-			params: { name },
-		});
+		setFood(food);
+		router.push(`${page.nutrition_facts.id}/${id}`)
 	};
 
 	const handleAddFood = async () => {
@@ -41,7 +41,7 @@ const FoodCard: React.FC<{
 			portions: 1,
 			portion_size: 'serving',
 			date: dateYMD,
-			source: 'usda' // TODO: change this
+			source: food.source
 		})
 	}
 
@@ -56,7 +56,7 @@ const FoodCard: React.FC<{
 					<Text className='text-xs text-zinc-500'>{brand}</Text>
 					<Text className='text-zinc-500 px-2'>·</Text>
 					<Text className='text-xs text-zinc-500'>
-						{calories} kcal
+						{calories.toFixed(0)} kcal
 					</Text>
 				</View>
 				<View className='flex-row items-center'>

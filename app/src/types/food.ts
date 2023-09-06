@@ -1,3 +1,19 @@
+import { Source } from "./source_enum";
+
+export interface CreateFoodDto {
+    user_id: string,
+    name: string,
+    brand: string | null,
+    barcode: number | null,
+    calories: number,
+    carbs: number,
+    protein: number,
+    fat: number,
+    serving_size: number,
+    serving_size_unit: 'g' | 'ml',
+    ingredients: string | null,
+}
+
 export interface Food {
     id: number;
     name: string;
@@ -11,6 +27,7 @@ export interface Food {
     vitamins: Vitamins;
     minerals: Minerals;
     amino_acids: Aminos;
+    source: Source
 }
 
 export interface Nutrients {
