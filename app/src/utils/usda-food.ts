@@ -20,6 +20,7 @@ export const usdaSearchFoodToFood = (food: SearchResultFoodDto): Food => {
         serving_size_unit: food.servingSizeUnit,
         alternative_serving_size: '1 serving',
         verified: true,
+        source: 'usda',
         nutrients: {
             carbs: getSearchNutrientValue(food.foodNutrients, 1005),
             fiber: getSearchNutrientValue(food.foodNutrients, 1079),
@@ -101,6 +102,7 @@ export const usdaFoodToFood = (food: FoodDto): Food => {
         serving_size_unit: food.servingSizeUnit,
         alternative_serving_size: '1 serving',
         verified: true,
+        source: 'usda',
         nutrients: {
             carbs: getIdNutrientValue(food.foodNutrients, 1005) || 0,
             fiber: getIdNutrientValue(food.foodNutrients, 1079),

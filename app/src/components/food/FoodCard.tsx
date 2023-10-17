@@ -24,7 +24,8 @@ const FoodCard: React.FC<{
 
 	const { mutate, status } = useMutation((newMeal: CreateMeal) => addMeal(newMeal), {
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: [dateYMD] });
+			console.log('success');
+			queryClient.invalidateQueries({ queryKey: ["daily", user.id, dateYMD] });
 		}
 	});
 

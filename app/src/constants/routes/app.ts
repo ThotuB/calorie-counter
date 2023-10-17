@@ -27,7 +27,7 @@ export const page = {
     home: {
         settings: {
             settings: `${routes.settings}/Settings`,
-            personal_details: `${routes.settings}/PersonalDetails`,
+            personal_details: `${routes.settings}/AccountSettings`,
             account_settings: `${routes.settings}/AccountSettings`,
             invite_friends: `${routes.settings}/InviteFriends`,
             diary_settings: `${routes.settings}/DiarySettings`,

@@ -135,7 +135,7 @@ const Macro: React.FC<{
                             {Math.round(totalCalories * value / calPerGram)} g
                         </Text>
                         <Text className='w-16 text-right text-base font-semibold text-zinc-100'>
-                            {value * 100}%
+                            {(value * 100).toFixed(0)}%
                         </Text>
                         <Text className='w-24 text-right text-base font-semibold text-zinc-100'>
                             {Math.round(totalCalories * value)} kcal

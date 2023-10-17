@@ -7,7 +7,7 @@ import Slider from '@react-native-community/slider'
 import ColorfulButton from 'src/components/util/ColorfulButton'
 import { getSettings, updateMacroGoal } from 'src/services/settings'
 import { useAuthedUser } from 'src/contexts/UserContext'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { UpdateMacroGoalDto } from 'src/types/macro-goal'
 import { page } from 'src/constants/routes/app'
@@ -15,17 +15,20 @@ import { page } from 'src/constants/routes/app'
 const AdjustMacros = () => {
     const router = useRouter()
     const { user } = useAuthedUser()
+    const queryClient = useQueryClient()
+
     const { data: macros } = useQuery(['macros'], () => getSettings(user.id), {
         onSuccess: (data) => {
-            setCarbs(data.percent_carbs * 100)
-            setProtein(data.percent_protein * 100)
-            setFat(data.percent_fat * 100)
+            setCarbs(Math.round(data.percent_carbs * 100))
+            setProtein(Math.round(data.percent_protein * 100))
+            setFat(Math.round(data.percent_fat * 100))
         }
     })
 
     const { mutate: updateMacros } = useMutation((updatedMacros: UpdateMacroGoalDto) => updateMacroGoal(updatedMacros), {
         onSuccess: () => {
             router.push(page.home.profile)
+            queryClient.invalidateQueries(['daily', user.id, 'macros'])
         }
     })
 
@@ -33,7 +36,11 @@ const AdjustMacros = () => {
     const [protein, setProtein] = useState(20)
     const [fat, setFat] = useState(30)
 
-    if (!macros) return null
+    if (!macros) return (
+        <TitleLayout title='Adjust Macros' back safe >
+
+        </TitleLayout>
+    )
 
     const totalCalories = macros.calories
     const totalPercentage = carbs + protein + fat
@@ -58,7 +65,7 @@ const AdjustMacros = () => {
                     <View className='relative my-12'>
                         <View className='absolute top-0 left-0 w-40 h-40 flex-row justify-center items-center z-10'>
                             <Text className={`text-3xl font-bold ${is100 ? 'text-zinc-50' : 'text-rose-500'}`}>
-                                {totalPercentage}%
+                                {totalPercentage.toFixed(0)}%
                             </Text>
                         </View>
                         <DoughnutChart
@@ -137,7 +144,7 @@ const AdjustMacro: React.FC<{
                         {Math.round(totalCalories * value / 100 / calPerGram)} g
                     </Text>
                     <Text className='w-12 text-right text-base font-medium text-zinc-100'>
-                        {value}%
+                        {value.toFixed(0)}%
                     </Text>
                     <Text className='w-20 text-right text-base font-medium text-zinc-100'>
                         {Math.round(totalCalories * value / 100)} kcal

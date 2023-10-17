@@ -47,7 +47,9 @@ const WeightSelection = () => {
 					</Text>
 				</View>
 			</View>
-			<NextButton href={page.auth.sign_up.account_setup.sign_up} />
+			<NextButton href={page.auth.sign_up.account_setup.sign_up}
+				progress={6}
+			/>
 		</View>
 	);
 };

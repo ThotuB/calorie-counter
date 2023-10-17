@@ -31,7 +31,7 @@ pub async fn get_by_user_between_dates(
     start: chrono::NaiveDate,
     end: chrono::NaiveDate,
 ) -> Result<Vec<Water>> {
-    return sqlx::query_as!(
+    sqlx::query_as!(
         Water,
         r"
             SELECT user_id, date, amount
@@ -43,7 +43,7 @@ pub async fn get_by_user_between_dates(
         end,
     )
     .fetch_all(conn)
-    .await;
+    .await
 }
 
 // TODO: Write function better

@@ -17,6 +17,22 @@ pub async fn get_by_id(conn: &PgPool, id: i32) -> Result<Option<Food>> {
     Ok(food)
 }
 
+pub async fn get_by_ids(conn: &PgPool, ids: &[i32]) -> Result<Vec<Food>> {
+    let foods = sqlx::query_as!(
+        Food,
+        r#"
+            SELECT id, user_id, name, brand, barcode, calories, carbs, protein, fat, serving_size, serving_size_unit AS "serving_size_unit: _", ingredients
+            FROM food
+            WHERE id = ANY($1)
+        "#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(foods)
+}
+
 pub async fn get_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Food>> {
     let foods = sqlx::query_as!(
         Food,

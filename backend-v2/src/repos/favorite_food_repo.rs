@@ -42,7 +42,11 @@ pub async fn get_created_by_user(conn: &PgPool, uid: &str) -> Result<Vec<Food>> 
     Ok(foods)
 }
 
-pub async fn get_by_user_and_source(conn: &PgPool, uid: &str, source: &Source) -> Result<Vec<i32>> {
+pub async fn get_ids_by_user_and_source(
+    conn: &PgPool,
+    uid: &str,
+    source: &Source,
+) -> Result<Vec<i32>> {
     struct FoodId {
         food_id: i32,
     }

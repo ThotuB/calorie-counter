@@ -67,7 +67,7 @@ pub async fn get_usda_food_by_search(search: &str, page: i32) -> Result<(), Erro
         page_size: i32,
     }
 
-    let res = surf::get(Routes::Search.to_string())
+    surf::get(Routes::Search.to_string())
         .query(&SearchQuery {
             api_key: USDA_API_KEY.to_string(),
             general_search_input: search.to_string(),
@@ -100,6 +100,10 @@ pub async fn get_usda_food_by_id(id: &str) -> Result<FoodDto, Error> {
 }
 
 pub async fn get_usda_foods_by_ids(ids: Vec<i32>) -> Result<Vec<FoodDto>, Error> {
+    if ids.is_empty() {
+        return Ok(vec![]);
+    }
+
     #[derive(Serialize)]
     #[serde(rename_all = "camelCase")]
     struct FoodsQuery {

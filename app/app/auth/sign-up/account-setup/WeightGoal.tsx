@@ -35,6 +35,7 @@ const WeightGoal = () => {
 			</View>
 			<NextButton
 				href={page.auth.sign_up.account_setup.gender_selection}
+				progress={2}
 				isPressable={weightGoal !== ''}
 			/>
 		</View>

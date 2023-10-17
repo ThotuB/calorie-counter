@@ -47,7 +47,9 @@ const HeightSelection = () => {
 					</Text>
 				</View>
 			</View>
-			<NextButton href={page.auth.sign_up.account_setup.weight_selection} />
+			<NextButton href={page.auth.sign_up.account_setup.weight_selection}
+				progress={5}
+			/>
 		</View>
 	);
 };

@@ -31,6 +31,7 @@ const GenderSelection = () => {
 			</View>
 			<NextButton
 				href={page.auth.sign_up.account_setup.age_selection}
+				progress={3}
 				isPressable={gender !== ''}
 			/>
 		</View>

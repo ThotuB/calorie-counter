@@ -5,13 +5,22 @@ import { useRouter } from 'expo-router';
 
 const NextButton: React.FC<{
 	href: string;
+	progress: number;
 	isPressable?: boolean;
-}> = ({ href, isPressable = true }) => {
+}> = ({ href, progress, isPressable = true }) => {
 	const router = useRouter();
 
 	const onPress = () => {
 		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-		router.push(href);
+		router.push({
+			pathname: href,
+			params: {
+				progress,
+			},
+		})
+		router.setParams({
+			progress: progress.toString(),
+		});
 	};
 
 	return (

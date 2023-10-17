@@ -1,13 +1,7 @@
 use controllers::*;
 use middleware::{log_middleware::LogMiddleware, user_middleware::UserMiddleware};
-use services::usda_food::*;
-use sqlx::PgPool;
-use tide::{
-    utils::{After, Before},
-    Request, Response,
-};
+use tide::{utils::After, Response};
 
-#[macro_use]
 extern crate tide;
 #[macro_use]
 extern crate serde;

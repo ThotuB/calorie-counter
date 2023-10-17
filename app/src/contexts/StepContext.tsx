@@ -23,9 +23,7 @@ export const StepProvider: React.FC<{
     const [stepCountToday, setStepCountToday] = useState(0);
     const [currentStepCount, setCurrentStepCount] = useState(0);
 
-    console.log('StepProvider', stepCountToday, currentStepCount);
-
-    const subscribe = async () => {
+    const get_steps = async () => {
         if (permission === Pedometer.PermissionStatus.GRANTED) {
             const from = new Date(date);
             from.setHours(0, 0, 0, 1);
@@ -42,10 +40,6 @@ export const StepProvider: React.FC<{
             if (pastStepCountResult) {
                 setStepCountToday(pastStepCountResult.steps);
             }
-
-            return Pedometer.watchStepCount(result => {
-                setCurrentStepCount(result.steps);
-            });
         }
     };
 
@@ -61,8 +55,17 @@ export const StepProvider: React.FC<{
     }, []);
 
     useEffect(() => {
-        subscribe();
+        get_steps();
+
+        Pedometer.watchStepCount(result => {
+            setCurrentStepCount(result.steps);
+        });
     }, [permission]);
+
+    useEffect(() => {
+        get_steps();
+    }, [date]);
+
 
     const totalSteps = isToday ? stepCountToday + currentStepCount : stepCountToday;
     const caloriesBurned = totalSteps * 0.05;

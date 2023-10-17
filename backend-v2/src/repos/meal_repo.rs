@@ -86,6 +86,29 @@ pub async fn get_by_user_and_date(
     Ok(meals)
 }
 
+pub async fn get_by_user_date_and_source(
+    conn: &PgPool,
+    uid: &str,
+    date: chrono::NaiveDate,
+    source: &Source,
+) -> Result<Vec<Meal>> {
+    let meals = sqlx::query_as!(
+        Meal,
+        r#"
+        SELECT id, user_id, food_id, meal_type AS "meal_type: _", date, portions, portion_size AS "portion_size: _", calories, protein, carbs, fat, source AS "source: _"
+        FROM meals 
+        WHERE user_id = $1 AND date = $2 AND source = $3
+        "#,
+        uid,
+        date,
+        source as &Source
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(meals)
+}
+
 pub async fn get_recent(conn: &PgPool, uid: &str) -> Result<Vec<Meal>> {
     let meals = sqlx::query_as!(
         Meal,

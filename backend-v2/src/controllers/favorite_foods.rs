@@ -1,5 +1,5 @@
 use sqlx::PgPool;
-use tide::{log, Request, Result, StatusCode};
+use tide::{Request, Result, StatusCode};
 
 use crate::{
     dto::{favorite_food_dtos::CreateFavoriteFoodDto, food_dtos::FoodDto},
@@ -17,7 +17,7 @@ pub async fn get_favorite_foods(req: Request<PgPool>) -> Result {
 
     let connection = req.state();
 
-    let ids = favorite_food_repo::get_by_user_and_source(connection, user_id, &Source::Usda)
+    let ids = favorite_food_repo::get_ids_by_user_and_source(connection, user_id, &Source::Usda)
         .await
         .map_err_to_server_error()?;
 
@@ -52,7 +52,7 @@ pub async fn is_favorite_food(req: Request<PgPool>) -> Result {
             tide::StatusCode::BadRequest,
             "invalid-food-id",
             "Invalid food id. Must be an integer."
-        ))
+        ));
     };
 
     let Ok(source) = source.parse::<Source>() else {
@@ -60,16 +60,17 @@ pub async fn is_favorite_food(req: Request<PgPool>) -> Result {
             tide::StatusCode::BadRequest,
             "invalid-source",
             "Invalid source. Must be one of: user, usda"
-        ))
+        ));
     };
 
     let connection = req.state();
 
     let Some(_) = favorite_food_repo::get(connection, user_id, food_id, &source)
         .await
-        .map_err_to_server_error()? else {
-            return Ok(response!(StatusCode::Ok, false));
-        };
+        .map_err_to_server_error()?
+    else {
+        return Ok(response!(StatusCode::Ok, false));
+    };
 
     Ok(response!(StatusCode::Ok, true))
 }
@@ -96,7 +97,7 @@ pub async fn delete_favorite_food(req: Request<PgPool>) -> Result {
             tide::StatusCode::BadRequest,
             "invalid-food-id",
             "Invalid food id. Must be an integer."
-        ))
+        ));
     };
 
     let Ok(source) = source.parse::<Source>() else {
@@ -104,7 +105,7 @@ pub async fn delete_favorite_food(req: Request<PgPool>) -> Result {
             tide::StatusCode::BadRequest,
             "invalid-source",
             "Invalid source. Must be one of: user, usda"
-        ))
+        ));
     };
 
     let connection = req.state();

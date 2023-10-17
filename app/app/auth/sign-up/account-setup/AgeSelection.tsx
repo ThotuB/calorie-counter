@@ -42,7 +42,9 @@ const HeightSelection = () => {
                     </Text>
                 </View>
             </View>
-            <NextButton href={page.auth.sign_up.account_setup.height_selection} />
+            <NextButton href={page.auth.sign_up.account_setup.height_selection}
+                progress={4}
+            />
         </View>
     );
 };

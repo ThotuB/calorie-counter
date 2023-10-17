@@ -70,20 +70,7 @@ const Profile = () => {
 						</View>
 					</CategoryLayout>
 
-					{/* {user.externalAccounts.length > 0 && (
-						<View className='mt-6'>
-							<CategoryLayout category='SOCIALS'>
-								<View className='flex-row items-center'>
-									{user.externalAccounts.map((account, _) => (
-										<>
-											{account.provider === 'apple' && <AppleIcon key={1} svgClassName='mx-2 w-8 h-8 text-white' />}
-											{account.provider === 'google' && <GoogleIcon key={2} svgClassName='mx-2 w-8 h-8' />}
-										</>
-									))}
-								</View>
-							</CategoryLayout>
-						</View>
-					)} */}
+
 
 					<View className='mt-6'>
 						<CategoryLayout category='CUSTOMIZATION'>

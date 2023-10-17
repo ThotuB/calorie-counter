@@ -5,7 +5,8 @@ use tide::{Request, Result, StatusCode};
 use crate::{
     dto::meal_dtos::{CreateMealDto, MealDto},
     error_message,
-    repos::meal_repo,
+    models::enums::Source,
+    repos::{food_repo, meal_repo},
     response,
     services::usda_food,
 };
@@ -26,22 +27,39 @@ pub async fn get_meals(req: Request<PgPool>) -> Result {
         ));
     };
 
-    let meals = meal_repo::get_by_user_and_date(connection, user_id, date)
-        .await
-        .map_err_to_server_error()?;
+    let mut usda_meals =
+        meal_repo::get_by_user_date_and_source(connection, user_id, date, &Source::Usda)
+            .await
+            .map_err_to_server_error()?;
 
-    if meals.is_empty() {
+    let mut user_meals =
+        meal_repo::get_by_user_date_and_source(connection, user_id, date, &Source::User)
+            .await
+            .map_err_to_server_error()?;
+
+    if usda_meals.is_empty() && user_meals.is_empty() {
         return Ok(response!(StatusCode::Ok, Vec::<MealDto>::new()));
     }
 
-    let ids = meals.iter().map(|m| m.food_id).collect::<Vec<i32>>();
-    let foods = usda_food::get_usda_foods_by_ids(ids).await?;
+    let usda_ids: Vec<i32> = usda_meals.iter().map(|m| m.food_id).collect();
+    let user_ids: Vec<i32> = user_meals.iter().map(|m| m.food_id).collect();
 
-    let data = std::iter::zip(meals, foods)
+    let mut usda_foods = usda_food::get_usda_foods_by_ids(usda_ids).await?;
+    let mut user_foods = food_repo::get_by_ids(connection, &user_ids)
+        .await
+        .map_err_to_server_error()?
+        .into_iter()
+        .map(|f| f.into())
+        .collect::<Vec<_>>();
+
+    usda_meals.append(&mut user_meals);
+    usda_foods.append(&mut user_foods);
+
+    let meals = std::iter::zip(usda_meals, usda_foods)
         .map(|(meal, food)| MealDto::from_meal(meal, food))
         .collect::<Vec<_>>();
 
-    Ok(response!(StatusCode::Ok, data))
+    Ok(response!(StatusCode::Ok, meals))
 }
 
 pub async fn get_recent_meals(req: Request<PgPool>) -> Result {
@@ -58,13 +76,13 @@ pub async fn get_recent_meals(req: Request<PgPool>) -> Result {
     }
 
     let ids = meals.iter().map(|m| m.food_id).collect::<Vec<i32>>();
-    let foods = usda_food::get_usda_foods_by_ids(ids).await?;
+    let usda_foods = usda_food::get_usda_foods_by_ids(ids).await?;
 
-    let data = std::iter::zip(meals, foods)
+    let usda_meals = std::iter::zip(meals, usda_foods)
         .map(|(meal, food)| MealDto::from_meal(meal, food))
         .collect::<Vec<_>>();
 
-    Ok(response!(StatusCode::Ok, data))
+    Ok(response!(StatusCode::Ok, usda_meals))
 }
 
 pub async fn post_meal(mut req: Request<PgPool>) -> Result {
